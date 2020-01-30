@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Distribution / packaging
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.pytest_cache/
+.cache/
+htmlcov/
+
+# virtual environment to test imports
+venvimport/
+
+# test data
+tests/data/
+tests/downloads/
+tests/exported/
+
+# Sphinx documentation
+docs/build/
+docs/source/api/
+docs/source/gui/images/
+docs/source/analysis/images/
+docs/source/analysis/plotly/

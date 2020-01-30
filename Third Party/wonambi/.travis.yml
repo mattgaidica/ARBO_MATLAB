@@ -1,0 +1,65 @@
+language: python
+#dist: xenial
+
+python:
+ - "3.7"
+
+env:
+  global:
+   - DOWNLOADS=$HOME/downloads
+   - HTML_PATH=docs/build/html
+   # it's necessary to use pyqt5 because that is the version compatible with travis/qt
+   - OPT_DEP='nibabel pyqt5==5.11.3 vispy h5py fooof bidso'
+
+cache: 
+ - directories:
+   - $DOWNLOADS
+   - $HOME/.cache/pip
+
+before_install:
+ # create display with large resolution
+ - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1920x1080x16"
+ - python setup_wonambi.py --get_files
+
+install: 
+ # install requirements
+ - pip install numpy scipy
+ - pip install $OPT_DEP
+ - pip install pytest
+ - pip install pytest-qt pytest-cov codecov plotly
+ - pip install sphinx sphinx_rtd_theme
+ - pip install -e .
+
+before_script:
+  - "export DISPLAY=:99.0"
+
+script:
+ - python -c "import vispy; print(vispy.sys_info()); exit()"
+ - python setup_wonambi.py --tests
+
+ # test without optional requirements (append .coverage)
+ - pip uninstall -y pytest-qt $OPT_DEP
+ - python setup_wonambi.py --test_import
+
+ # reinstall optional requirements to run the docs
+ - pip install $OPT_DEP
+ - python setup_wonambi.py --docs
+
+after_success:
+ - codecov
+
+notifications:
+ email: false
+
+deploy:
+ - provider: pages
+   skip_cleanup: true
+   target_branch : master
+   local_dir : $HTML_PATH
+   repo : wonambi-python/wonambi-python.github.io
+   github_token : $GITHUB_TOKEN
+ - provider: pypi
+   user: $PYPI_USER
+   password: $PYPI_PASSWORD
+   on:
+     tags: true

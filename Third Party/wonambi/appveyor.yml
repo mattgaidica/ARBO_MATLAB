@@ -1,0 +1,47 @@
+build: off
+
+skip_branch_with_pr: true
+
+environment:
+  MINICONDA: C:\Miniconda36-x64
+  DOWNLOADS: Downloads
+  PYTHON_ARCH: "64"
+
+cache:
+  - '%DOWNLOADS% -> tests\paths.py'
+  - '%LOCALAPPDATA%\pip\Cache'
+
+install:
+  # Set up OpenGL
+  - ps: Start-FileDownload 'https://github.com/vispy/demo-data/raw/master/mesa/opengl32_mingw_64.dll' -FileName opengl32.dll
+  - "SET VISPY_GL_LIB=%CD%\\opengl32.dll"
+
+  # conda
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda create -q -n test-environment python=3.6 numpy scipy 
+  - activate test-environment
+  - conda install h5py
+
+  # pip
+  - pip install nibabel pyqt5 vispy
+  - pip install pytest pytest-qt pytest-cov codecov plotly
+  - pip install sphinx sphinx_rtd_theme
+  - pip install -e .
+
+before_test:
+  - python setup_wonambi.py --get_files
+
+test_script:
+ - python -c "import vispy; print(vispy.sys_info()); exit()"
+ - python setup_wonambi.py --tests
+
+ # test without optional requirements (append .coverage)
+ - pip uninstall -y pyqt5 pytest-qt nibabel
+ - python setup_wonambi.py --test_import
+
+ # reinstall optional requirements for docs
+ - pip install pyqt5 nibabel
+ - python setup_wonambi.py --docs
