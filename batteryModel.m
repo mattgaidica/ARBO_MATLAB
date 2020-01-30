@@ -15,7 +15,7 @@ nDays = 30;
 legends = {};
 for ii = 1:numel(nRec)
     legends{ii} = [num2str(nRec(ii)),' rec/day @ ',num2str(recordingDuration),'min '...
-        '(',num2str(recordingDuration*nRec(ii)/24,2),'hrs)'];
+        '(',num2str(recordingDuration*nRec(ii)/60,2),'hrs)'];
 end
 close all
 ff(900,600);
