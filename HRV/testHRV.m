@@ -8,15 +8,16 @@ RR = diff(qrs_t);
 
 t = linspace(0,numel(signal)/Fs,numel(signal));
 
-% figure;
-% plot(t,signal);
-% xlabel('time (s)');
-% ylabel('A');
-% hold on;
-% plot(qrs_t,signal(qrs_i_raw),'ro');
-% 
-% figure;
-% plot(diff(qrs_t));
+figure;
+plot(t,signal);
+xlabel('time (s)');
+ylabel('A');
+hold on;
+plot(qrs_t,signal(qrs_i_raw),'ro');
 
-HRV.HR(RR)
+figure;
+plot(diff(qrs_t));
 
+% see if you can compute the rest of the HRV statistics
+HRV.HR(RR);
+[pLF,pHF,LFHFratio,VLF,LF,HF,f,Y,NFFT] = HRV.fft_val_fun(RR,Fs);
