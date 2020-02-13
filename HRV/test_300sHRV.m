@@ -6,7 +6,7 @@ xs = 1.0e+04 * [0.9748, 4.2062];
 A = A(xs(1):xs(2)); % figure this out!
 t = t(xs(1):xs(2));
 
-[qrs_amp_raw,qrs_i_raw,delay] = pan_tompkin(A,Fs,0);
+[qrs_amp_raw,qrs_i_raw,delay] = pan_tompkin(A,Fs,1);
 qrs_t = qrs_i_raw / Fs;
 RR = diff(qrs_t);
 RR = HRV.RRfilter(RR);

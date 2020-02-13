@@ -1,7 +1,8 @@
 clc
-close all
+% close all
 f = 250;
-sdPath = '/Volumes/ARBO';
+% sdPath = '/Volumes/ARBO SAM';
+sdPath = '/Users/matt/Desktop/HR';
 files = dir(sdPath);
 name = files(end).name;
 disp(['Reading file: ',name]);
