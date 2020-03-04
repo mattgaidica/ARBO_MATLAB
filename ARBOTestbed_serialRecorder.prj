@@ -1,0 +1,60 @@
+<deployment-project plugin="plugin.apptool" plugin-version="1.0">
+  <configuration build-checksum="4275445492" file="/Users/matt/Documents/MATLAB/ARBO/ARBOTestbed_serialRecorder.prj" location="/Users/matt/Documents/MATLAB/ARBO" name="ARBOTestbed_serialRecorder" target="target.mlapps" target-name="Package App">
+    <param.appname>ARBOTestbed_serialRecorder</param.appname>
+    <param.authnamewatermark>Matt Gaidica</param.authnamewatermark>
+    <param.email>mgaidica@umich.edu</param.email>
+    <param.company>University of Michigan</param.company>
+    <param.icon />
+    <param.icons />
+    <param.summary>reads 4chs of data and filename</param.summary>
+    <param.description />
+    <param.screenshot>/private/var/folders/n8/9l239n155rb_lgwmr666r6b80000gn/T/tp38d13e50_79f8_46d3_a191_77a3bb01fdad.png</param.screenshot>
+    <param.version>1.0</param.version>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.output>${PROJECT_ROOT}</param.output>
+    <param.guid>1f5beafd-a634-43ec-88cc-0b50155041b6</param.guid>
+    <unset>
+      <param.icon />
+      <param.icons />
+      <param.description />
+      <param.version />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+      <param.output />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}/ARBOTestbed_serialRecorder.mlapp</file>
+    </fileset.main>
+    <fileset.depfun />
+    <fileset.resources />
+    <fileset.package />
+    <build-deliverables>
+      <file location="/Users/matt/Documents/MATLAB" name="ARBO" optional="false">/Users/matt/Documents/MATLAB/ARBO</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>/Applications/MATLAB_R2019b.app</root>
+      <toolboxes />
+    </matlab>
+    <platform>
+      <unix>true</unix>
+      <mac>true</mac>
+      <windows>false</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.15.2</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>maci64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
