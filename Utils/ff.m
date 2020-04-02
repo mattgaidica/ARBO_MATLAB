@@ -7,7 +7,7 @@ if isempty(varargin)
 elseif numel(varargin) == 1
     h = figure('position',[0 300 varargin{1} screensize(4)]);
 elseif numel(varargin) == 2
-    h = figure('position',[0 300 varargin{1} varargin{2}]);
+    h = figure2('position',[0 300 varargin{1} varargin{2}]);
 else
     h_width = varargin{1};
     h_height = varargin{2};

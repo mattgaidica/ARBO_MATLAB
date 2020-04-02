@@ -1,6 +1,10 @@
-filename = '/Users/matt/Desktop/Screen Recording 2020-04-01 at 10.07.34 PM.mov';
+filename = '/Users/matt/Desktop/Screen Recording 2020-04-01 at 10.07.34 PM.mov'; % forest
+% filename = '/Users/matt/Desktop/leapingSquirrel.mov'; % leap
+% filename = '/Users/matt/Desktop/Screen Recording 2020-04-02 at 12.31.11 AM.mov';
 % filename = '/Users/matt/Desktop/Screen Recording 2020-04-01 at 10.53.19 PM.mov';
 v = VideoReader(filename);
+vW = VideoWriter('~/Desktop/squirrelDetect.mp4','MPEG-4');
+vW.Quality = 95;
 
 % % % % if false
 % % % %     rows = 5;
@@ -25,30 +29,68 @@ v = VideoReader(filename);
 % % % %     background = uint8(squeeze(mean(backgroundFrames(:,:,:,selectedIds),4)));
 % % % % end
 
-v.CurrentTime = 0;
-alpha = 0.5;
 close all
-figure2;
-fracArr = [];
-nFrac = 0;
-nMod = 0.5;
-useFrames = round(linspace(1,v.NumFrames,round(v.NumFrames*nMod)));
+ff(1400,600);
+rows = 4;
+cols = 6;
+nBuffer = 15;
+backgroundArr = zeros(v.Height,v.Width,3,nBuffer,'uint8');
+replayRate = 4;
+useFrames = round(linspace(1,v.NumFrames,round(v.NumFrames/replayRate)));
+fracArr = NaN(size(useFrames));
+se = strel('disk',2);
+fontsize = 14;
+open(vW);
 for ii = 1:numel(useFrames)
     frame = read(v,useFrames(ii));
-% %     background = (1-alpha) * frame + alpha * background;
+    frameHSV = rgb2hsv(frame);
+    if ii <= nBuffer
+        backgroundArr(:,:,:,ii) = frame;
+        continue;
+    else
+        backgroundArr = circshift(backgroundArr,-1,4);
+        backgroundArr(:,:,:,end) = frame;
+    end
+    background = uint8(squeeze(mean(backgroundArr,4)));
     differenceImage = frame - background;
-    grayImage = rgb2gray(differenceImage); % Convert to gray level
+    differenceImageHSV = frameHSV - rgb2hsv(background);
+    grayImage = rgb2gray(differenceImage.^2); % Convert to gray level
     thresholdLevel = graythresh(grayImage); % Get threshold.
-    binaryImage = im2bw(grayImage, thresholdLevel); % Do the binarization
+    binaryImage = im2bw(grayImage, sqrt(thresholdLevel)); % Do the binarization
+    binaryOpen = imopen(binaryImage,se);
     
-    subplot(131);
+    subplot(rows,cols,[1 2 7 8]);
     imshow(frame);
-    subplot(132);
-    imshow(grayImage);
-    subplot(133);
-    fracArr(ii) = sum(differenceImage(:))/(numel(differenceImage)*255);
-    plot(fracArr);
+    title('Original');
+    set(gca,'fontsize',fontsize);
+
+    subplot(rows,cols,[3 4 9 10]);
+    imshow(differenceImage.^2);
+    title('RGB Difference');
+    set(gca,'fontsize',fontsize);
+    
+    subplot(rows,cols,[5 6 11 12]);
+    imshow(binaryOpen);
+    title('Binarized');
+    set(gca,'fontsize',fontsize);
+    
+    subplot(rows,cols,[13:24]);
+    fracArr(ii) = sqrt(sum(binaryOpen(:))/numel(binaryOpen));
+    plot(fracArr,'k');
+    hold on;
+    ln = plot([ii-nBuffer ii],[0 0],'k-','linewidth',5);
     xlim([1,numel(useFrames)]);
-    ylim([0 0.4]);
+    ylim([0 0.7]);
+    title('Quantified Movement');
+    ylabel('fraction of change');
+    xlabel('frame');
+    set(gca,'fontsize',fontsize);
+    legend(ln,'background buffer');
+    legend boxoff;
+    hold off;
+    
     drawnow;
+    A = getframe(gcf);
+    writeVideo(vW,A);
 end
+close(vW);
