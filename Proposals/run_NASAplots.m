@@ -74,24 +74,24 @@ h = polarhistogram('BinEdges',edges,'BinCounts',counts,...
 h.DisplayStyle = 'stairs';
 h.EdgeColor = mutedYl;
 
-% % counts = smooth(normalize(yearlyWeather)+1);
-% % edges = linspace(-pi,pi,numel(counts));
-% % colors = parula(numel(counts));
-% % colorLookup = linspace(1,2,size(colors,1));
-% % for ii = 1:numel(counts)
-% % %     ct = zeros(size(counts));
-% % %     ct(ii) = counts(ii);
-% %     colorId = closest(colorLookup,counts(ii));
-% % %     h = polarhistogram('BinEdges',edges,'BinCounts',ct,...
-% % %         'FaceColor',colors(colorId,:),'EdgeColor','none','FaceAlpha',0.5);
-% %     polarplot([edges(ii) edges(ii)],[1 counts(ii)],'-','Color',colors(colorId,:),...
-% %         'MarkerSize',15,'LineWidth',1);
-% %     hold on;
-% % end
+counts = smooth(normalize(yearlyWeather)+1);
+edges = linspace(-pi,pi,numel(counts));
+colors = parula(numel(counts));
+colorLookup = linspace(1,2,size(colors,1));
+for ii = 1:numel(counts)
+%     ct = zeros(size(counts));
+%     ct(ii) = counts(ii);
+    colorId = closest(colorLookup,counts(ii));
+%     h = polarhistogram('BinEdges',edges,'BinCounts',ct,...
+%         'FaceColor',colors(colorId,:),'EdgeColor','none','FaceAlpha',0.5);
+    polarplot([edges(ii) edges(ii)],[1 counts(ii)],'-','Color',colors(colorId,:),...
+        'MarkerSize',15,'LineWidth',1);
+    hold on;
+end
 
-% % h = polarplot(edges,ones(size(edges))*1.5); 
-% % h.Color = repmat(0.75,[1,3]);
-% % h.LineStyle = ':';
+h = polarplot(edges,ones(size(edges))*1.5); 
+h.Color = repmat(0.75,[1,3]);
+h.LineStyle = ':';
 
 % black border at r=1
 h = polarplot(edges,ones(size(edges))); 

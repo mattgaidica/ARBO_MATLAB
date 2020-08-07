@@ -1,4 +1,4 @@
-% sleepFracData = getDailySquirrelData();
+sleepFracData = getDailySquirrelData();
 doSave = false;
 colors = [cool(6);flip(cool(6))];
 % colors = mycmap('/Users/matt/Box Sync/Biologging/Software/daynight_cmap.png',12);

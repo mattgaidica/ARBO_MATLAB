@@ -1,6 +1,6 @@
 function sleepFracData = getDailySquirrelData()
 
-dataFile = '/Users/matt/Box Sync/Biologging/Software/Data/allsquirrelsZ15_daily.csv';
+dataFile = '/Users/matt/Documents/MATLAB/ARBO/Proposals/Data/allsquirrelsZ15_daily.csv';
 T = readtable(dataFile);
 
 varnames = {'X1', 'Squirrel', 'date', 'breaker', 'Feed',...
