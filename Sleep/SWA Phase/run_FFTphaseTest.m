@@ -1,7 +1,7 @@
 fs = 125; % sampling frequency
 t = 0 : 1/fs : 5; % time (0-5s)
-fmod = 3.15; % Hz
-pdelay = 1.6*pi;
+fmod = 2; % Hz
+pdelay = 0;
 x = sin((2*pi*fmod*t) + pi/2 + pdelay); % create test signal
 x = x + rand(size(x))*0.5-0.25;
 

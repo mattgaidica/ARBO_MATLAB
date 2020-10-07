@@ -1,13 +1,10 @@
 fs = 125; % sampling frequency
 t = 0 : 1/fs : 500; % time (0-5s)
-fmod = 2; % Hz
-x = sin((2*pi*fmod*t) + pi/2); % create test signal
 
 f1 = 0.5;
 f2 = 4;
 [A,B,C,D] = ellip(10,0.5,40,[f1/fs*2 f2/fs*2]);
 sos = ss2sos(A,B,C,D);
-y = sosfilt(sos,x); % filter test signal
 
 freqs = linspace(0.5,4,1000);
 resp = [];
