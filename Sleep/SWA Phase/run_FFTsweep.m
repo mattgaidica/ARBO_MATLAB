@@ -1,4 +1,3 @@
-doDebug = 0;
 fs = 125;
 eegStart = 12;
 if do
@@ -22,11 +21,15 @@ plv_fft = [];
 endIdx = 7 * fs;
 trainSecs = 0.5:0.5:3;%linspace(0.5,2,5);
 all_freqs = [];
-close all
+
+corrSamples = round(fs*0.25);
+
+% close all
+doDebug = 0;
 for iTrain = 1:numel(trainSecs)
     trainSec = trainSecs(iTrain);
-    
-    for useHA = 1:numel(SWA_HA_idx)
+    trainSamples = round(trainSec*fs);
+    for useHA = 1:10000%numel(SWA_HA_idx)
         fprintf('train:%03d HA:%03d\n',iTrain,useHA);
         x = data(endIdx-round((trainSec+testSec)*fs)+1:endIdx,SWA_HA_idx(useHA));
         y = sosfilt(sos,x);
@@ -38,24 +41,26 @@ for iTrain = 1:numel(trainSecs)
         all_freqs(iTrain,useHA) = freq;
         correction = 0;%wrapToPi(feval(f,freq)); % bound
         t_mod = 1/fs : 1/fs : (numel(x)/fs);
-        fcast_corr = cos((2*pi*freq*t_mod) + phase - correction);
+        fcast_corr = cos((2*pi*freq*t_mod) + phase - correction)';
 %         fcast_data_fft = fcast_corr(end-round(fs*testSec)+1:end)';
 
         % PLV
         h_test = angle(hilbert(y));
-        h_test = h_test(end-round(fs*testSec)+1:end);
         h_fft = angle(hilbert(fcast_corr));
-        h_fft = h_fft(end-round(fs*testSec)+1:end)';
+        r = circ_mean(circ_dist(h_test(trainSamples-corrSamples+1:trainSamples),...
+            h_fft(trainSamples-corrSamples+1:trainSamples)));
+        h_test = h_test(end-round(fs*testSec)+1:end) - r;
+        h_fft = h_fft(end-round(fs*testSec)+1:end);
         dp_fft = wrapToPi(h_fft - h_test);
         dp_fft_mean(iTrain,useHA,:) = dp_fft;
         plv_fft(iTrain,useHA) = abs(sum(exp(1i*(dp_fft))))/length(dp_fft);
         
         if doDebug
             h = ff(800,500);
+            t_debug = linspace(-trainSec,testSec,numel(x));
             subplot(211)
             plot(t_debug,x,'k:');
             hold on
-            t_debug = linspace(-trainSec,testSec,numel(x));
             plot(t_debug,y,'linewidth',2,'color',lines(1));
             xlim([min(t_debug) max(t_debug)]);
             ylabel('Amplitude');
@@ -107,6 +112,47 @@ t_train = linspace(0,testSec,size(ul_arr,2));
 
 ff(400,200);
 imagesc(t_train,trainSecs,unwrap(mu_arr,pi,2));
+if false
+    ff(400,400);
+    imagesc(t_train,trainSecs,abs(unwrap(mu_arr_notOpt,pi,2) - unwrap(mu_arr_Opt,pi,2)));
+    colorbar;
+    caxis([0 0.5]);
+    
+    close all
+    ff(800,350);
+    mu_un = unwrap(mu_arr_notOpt(4,:));
+    errBar = [];
+    errBar(1,:) = unwrap(ul_arr_notOpt(4,:)) - mu_un;
+    errBar(2,:) = mu_un - unwrap(ll_arr_notOpt(4,:));
+    H1 = shadedErrorBar(t_train,mu_un,errBar,'lineProps',{'-k'});
+    
+    mu_un = unwrap(mu_arr_opt(4,:));
+    errBar = [];
+    errBar(1,:) = unwrap(ul_arr_opt(4,:)) - mu_un;
+    errBar(2,:) = mu_un - unwrap(ll_arr_opt(4,:));
+    H2 = shadedErrorBar(t_train,mu_un,errBar,'lineProps',{'-g'});
+    
+    hold on;
+    H3 = plot(t_train,mu_arr_notOpt(4,:)-unwrap(mu_arr_opt(4,:)),'k:');
+    
+    title({'Phase w/ 2s Training'});
+    legend([H1.mainLine,H2.mainLine,H3],{'Non-optimized','0.25s Optimized','Difference'},...
+        'location','northwest');
+    set(gca,'fontsize',14);
+    xlim([min(t_train) max(t_train)]);
+    grid;
+    ylabel({'','Phase Error (rad)'});
+    xlabel({'Test (s)',''});
+    
+    
+    mu_arr_opt = mu_arr;
+    ul_arr_opt = ul_arr;
+    ll_arr_opt = ll_arr;
+    
+    mu_arr_notOpt = mu_arr;
+    ul_arr_notOpt = ul_arr;
+    ll_arr_notOpt = ll_arr;
+end
 caxis([0 pi]);
 % set(gca,'ydir','normal');
 set(gca,'fontsize',14);
@@ -142,14 +188,23 @@ end
 ff(600,800);
 subplot(211);
 colors = cool(numel(trainSecs));
+useEnd = false;
 for iTrain = 1:numel(trainSecs)
-    h = polarhistogram(squeeze(dp_fft_mean(iTrain,:,1)),20);
+    if useEnd
+        h = polarhistogram(squeeze(dp_fft_mean(iTrain,:,end)),20);
+    else
+        h = polarhistogram(squeeze(dp_fft_mean(iTrain,:,1)),20);
+    end
     h.DisplayStyle = 'stairs';
     h.EdgeColor = colors(iTrain,:);
     h.LineWidth = 2;
     hold on;
 end
-title(sprintf('Phase diff @ %1.1fs',testSec));
+if useEnd
+    title(sprintf('Phase diff @ %1.1fs',testSec));
+else
+    title(sprintf('Phase diff @ %1.1fs',0));
+end
 
 subplot(212);
 plot(trainSecs,mean(plv_fft,2),'k-');
