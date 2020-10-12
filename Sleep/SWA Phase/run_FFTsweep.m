@@ -19,7 +19,7 @@ testSec = 1;
 dp_fft_mean = [];
 plv_fft = [];
 endIdx = 7 * fs;
-trainSecs = 0.5:0.5:3;%linspace(0.5,2,5);
+trainSecs = 3%0.5:0.5:3;%linspace(0.5,2,5);
 all_freqs = [];
 
 corrSamples = round(fs*0.25);
@@ -29,7 +29,7 @@ doDebug = 0;
 for iTrain = 1:numel(trainSecs)
     trainSec = trainSecs(iTrain);
     trainSamples = round(trainSec*fs);
-    for useHA = 1:10000%numel(SWA_HA_idx)
+    for useHA = 1:numel(SWA_HA_idx)
         fprintf('train:%03d HA:%03d\n',iTrain,useHA);
         x = data(endIdx-round((trainSec+testSec)*fs)+1:endIdx,SWA_HA_idx(useHA));
         y = sosfilt(sos,x);
@@ -96,6 +96,9 @@ for iTrain = 1:numel(trainSecs)
 end
 
 %% PLOT
+figure;
+histogram(all_freqs,360)
+
 % close all
 mu_arr = [];
 ul_arr = [];

@@ -1,4 +1,4 @@
-function [freq,phase] = dominantFFT(x,fs,f1,f2)
+function [freq,phase,P,f] = dominantFFT(x,fs,f1,f2)
 doDebug = false;
 
 L = numel(x);
