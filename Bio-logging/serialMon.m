@@ -1,13 +1,13 @@
 function serialMon(varargin)
 ports = serialportlist("available");
 if numel(varargin) > 0
-    s = serialport(ports(varargin{1}),9600);
+    s = serialport(ports(varargin{1}),115200);
     figure;
-    for ii=1:100
-        data = read(s,50,"int32");
+%     for ii = 1:100
+        data = read(s,32,"int8");
         plot(data);
         drawnow;
-    end
+%     end
 else % list them
     clc;
     for iPort = 1:numel(ports)
