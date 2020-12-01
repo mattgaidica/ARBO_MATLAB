@@ -1,9 +1,16 @@
+% data
+% [2,1,6...] flags
+% [(153),MFG_DATA=255,eegAdvCount,iEEG,data...] (153)=ndata
+
 portname = '/dev/tty.usbmodemL5001NUI1';
 baud = 115200;
 eegHeader = [2,1,6];
 eegDataBit = 7;
-eegDataLength = 157;
+eegDataLength = 157; % total packet length
 Fs = 250;
+showSec = 4;
+useFilter = true;
+EEG_N_SAMPLE = 50; % from simple_broadcaster, simple_central
 
 doSave = true;
 savePath = '/Users/matt/Documents/MATLAB/ARBO/Bio-logging/ESLO/recordings';
@@ -28,13 +35,12 @@ try
 catch ME
 end
 
-hWaitbar = waitbar(0, 'Iteration 1', 'Name', 'ESLO','CreateCancelBtn','delete(gcbf)');
-set(hWaitbar,'Position',[500,500,360,78]);
 flush(s);
-h = ff(1300,400);
 ii = 0;
 data = [];
-dispBuffer = NaN(1000,1);
+compile_iAdv = [];
+dispBuffer = NaN(Fs * showSec,1);
+needPlot = true;
 while(true)
     pause(0.5);
     if s.NumBytesAvailable > 1
@@ -53,20 +59,34 @@ while(true)
             continue;
         end
         
+        compile_iAdv = [compile_iAdv data(idx+5)];
+        
         int32Data = [];
         for iidx = 1:numel(idx)
             dataStart = idx(iidx) + eegDataBit;
             dataEnd = dataStart + eegDataLength - eegDataBit - 1;
             if dataEnd <= numel(data)
+                iEEG = data(dataStart - 1);
                 re_data = reshape(data(dataStart:dataEnd),[3,(dataEnd-dataStart+1)/3])';
+                nanRows = 0;
+                if iEEG ~= EEG_N_SAMPLE-1
+                    nanRows = iEEG + 1;
+                end
                 for iRow = 1:size(re_data,1)
-                    t = swapbytes(typecast(uint8([0x00 re_data(iRow,:)]),'int32'));
-                    if bitand(t,typecast(0x00800000,'int32')) > 0
-                        t = bitor(t,typecast(0xFF000000,'int32'));
-                    end
+                    t = NaN;
+                    if iRow > nanRows
+                        t = swapbytes(typecast(uint8([0x00 re_data(iRow,:)]),'int32'));
+                        if bitand(t,typecast(0x00800000,'int32')) > 0
+                            t = bitor(t,typecast(0xFF000000,'int32'));
+                        end
+                    end 
                     int32Data(numel(int32Data)+1) = t;
                 end
             end
+        end
+        
+        if numel(int32Data) > numel(dispBuffer)
+            int32Data = int32Data(end-numel(dispBuffer)+1:end);
         end
         
         % maintain end of buffer
@@ -79,6 +99,13 @@ while(true)
         dispBuffer = circshift(dispBuffer,-numel(int32Data));
         dispBuffer(end-numel(int32Data)+1:end) = int32Data';
         
+        if needPlot
+            h = ff(1300,400);
+            hWaitbar = waitbar(0, 'Iteration 1', 'Name', 'ESLO','CreateCancelBtn','delete(gcbf)');
+            set(hWaitbar,'Position',[500,500,360,78]);
+            needPlot = false;
+        end
+        
         if (~fileIsOpen || dataCount > countSplitFile) && doSave
             dt = datestr(now,'yyyymmdd-HHMMSS');
             saveFile = fullfile(savePath,[dt,'.csv']);
@@ -87,13 +114,17 @@ while(true)
         end
         
         if doSave
-            writematrix(int32Data,saveFile); % ,'WriteMode','append'
+            writematrix(int32Data,saveFile,'WriteMode','append');
             dataCount = dataCount + numel(int32Data);
         end
         
         t = linspace(0,numel(dispBuffer)/Fs,numel(dispBuffer));
         figure(h);
-        sData = smoothdata(dispBuffer,'gaussian',10);
+        if useFilter
+            sData = smoothdata(dispBuffer,'gaussian',10);
+        else
+            sData = dispBuffer;
+        end
         plot(t,sData,'k');
         xlim([min(t) max(t)]);
         xticks(min(t):max(t));
@@ -108,8 +139,10 @@ while(true)
     end
     
     if ~ishandle(hWaitbar)
-        close(h)
-        break;
+        if ~needPlot
+            close(h)
+            break;
+        end
     else
         if fileIsOpen
             waitbar(dataCount/countSplitFile,hWaitbar,...
