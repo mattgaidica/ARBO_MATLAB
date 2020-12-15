@@ -28,6 +28,7 @@ Y = fft(X,n);
 f = Fs*(0:(n/2))/n;
 P = abs(Y/n).^2;
 A = angle(Y);
+Atan = atan2(imag(Y),real(Y));
 grid
 
 subplot(312);
@@ -38,8 +39,11 @@ xlim([0 10]);
 grid
 
 Asub = A(1:n/2+1);
+Atansub = Atan(1:n/2+1);
 subplot(313);
 plot(f,Asub);
+hold on;
+plot(f,Atansub,'r:');
 xlabel('Frequency (f)')
 ylabel('Phase (rad)');
 xlim([fmod-2 fmod+2]);
