@@ -1,6 +1,8 @@
 % data
 % [2,1,6...] flags
 % [(153),MFG_DATA=255,eegAdvCount,iEEG,data...] (153)=ndata
+clc
+disp('To record, press Left button, then Right button...');
 
 portname = '/dev/tty.usbmodemL5001NUI1';
 baud = 115200;
@@ -9,7 +11,7 @@ eegDataBit = 7;
 eegDataLength = 157; % total packet length
 Fs = 250;
 showSec = 4;
-useFilter = true;
+useFilter = false;
 EEG_N_SAMPLE = 50; % from simple_broadcaster, simple_central
 
 doSave = true;
@@ -79,7 +81,7 @@ while(true)
                         if bitand(t,typecast(0x00800000,'int32')) > 0
                             t = bitor(t,typecast(0xFF000000,'int32'));
                         end
-                    end 
+                    end
                     int32Data(numel(int32Data)+1) = t;
                 end
             end
@@ -102,7 +104,7 @@ while(true)
         if needPlot
             h = ff(1300,400);
             hWaitbar = waitbar(0, 'Iteration 1', 'Name', 'ESLO','CreateCancelBtn','delete(gcbf)');
-            set(hWaitbar,'Position',[500,500,360,78]);
+            set(hWaitbar,'Position',[0,0,360,78]);
             needPlot = false;
         end
         
@@ -138,17 +140,19 @@ while(true)
         drawnow;
     end
     
-    if ~ishandle(hWaitbar)
-        if ~needPlot
-            close(h)
-            break;
-        end
-    else
-        if fileIsOpen
-            waitbar(dataCount/countSplitFile,hWaitbar,...
-                sprintf("Writing %s (ii=%i)",dt,ii),'textInterpreter','None');
+    if exist('hWaitbar','var')
+        if ~ishandle(hWaitbar)
+            if ~needPlot
+                close(h)
+                break;
+            end
         else
-            waitbar(ii,hWaitbar,sprintf("Not writing (ii=%i)",ii));
+            if fileIsOpen
+                waitbar(dataCount/countSplitFile,hWaitbar,...
+                    sprintf("Writing %s (ii=%i)",dt,ii),'textInterpreter','None');
+            else
+                waitbar(ii,hWaitbar,sprintf("Not writing (ii=%i)",ii));
+            end
         end
     end
 end
