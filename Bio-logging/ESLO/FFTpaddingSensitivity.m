@@ -1,4 +1,4 @@
-fs = 125;
+fs = 250;
 eegStart = 12;
 if do
     h5file = '/Users/matt/Documents/Data/Sleep/dreem/X_train_KBHhQ0d.h5';
@@ -57,7 +57,7 @@ cols = 1;
 subplot(rows,cols,1);
 for iTrial = 1:nTrial
     diffData = (wrapToPi(results_phase(iTrial,:)-results_phase(iTrial,end)));
-    plot(padFactor,diffData,'color',repmat(0.1,[1,4]));
+    plot(padFactor,diffData,'color',repmat(0.025,[1,4]));
     hold on;
 end
 set(gca,'fontsize',14);
@@ -70,7 +70,7 @@ xlim(size(diffData));
 subplot(rows,cols,2);
 for iTrial = 1:nTrial
     diffData = abs(wrapToPi(results_phase(iTrial,:)-results_phase(iTrial,end)));
-    plot(padFactor,diffData,'color',repmat(0.1,[1,4]));
+    plot(padFactor,diffData,'color',repmat(0.025,[1,4]));
     hold on;
 end
 set(gca,'fontsize',14);
@@ -93,28 +93,38 @@ xlim(size(diffData));
 % ylim([-pi pi]);
 
 %% stats
-radSweep = [pi/2, pi/4, pi/8 pi/16];
+radSweep = [pi/2, pi/4, pi/8, pi/16];
 a = abs(wrapToPi(results_phase(:,:)-results_phase(:,end)));
 results_rad = zeros(numel(padFactor),numel(radSweep));
 for iPad = 1:numel(padFactor)
     for iRad = 1:numel(radSweep)
-        results_rad(iPad,iRad) = sum(a(:,iPad) > radSweep(iRad))/size(a,1);
+        results_rad(iPad,iRad) = 100*sum(a(:,iPad) > radSweep(iRad))/size(a,1);
     end
 end
 
 close all
-ff(600,300);
-for iRad = 1:numel(radSweep)
-    plot(results_rad(:,iRad),'linewidth',2);
-    hold on;
+ff(600,600);
+for iPlot = 1:2
+    subplot(2,1,iPlot);
+    for iRad = 1:numel(radSweep)
+        plot(results_rad(:,iRad),'linewidth',2);
+        hold on;
+    end
+%     ylim([0 1]);
+    xlabel({'padFactor (n)',''});
+    xlim([1 size(results_rad,1)]);
+    ylabel('Fraction of data > r');
+    set(gca,'fontsize',14);
+    title({'','Phase difference statistics'});
+    grid on
+    if iPlot == 1
+        set(gca,'yscale','linear');
+        legend({['r = ',char(177),'\pi/2'],...
+            ['r = ',char(177),'\pi/4'],...
+            ['r = ',char(177),'\pi/8'],...
+            ['r = ',char(177),'\pi/16'],...
+            },'location','northeast');
+    else
+        set(gca,'yscale','log');
+    end
 end
-legend({['r = ',char(177),'\pi/2'],...
-    ['r = ',char(177),'\pi/4'],...
-    ['r = ',char(177),'\pi/8'],...
-    ['r = ',char(177),'\pi/16'],...
-    },'location','northeast');
-ylim([0 1]);
-xlabel({'padFactor (n)',''});
-ylabel('Fraction of data > r');
-set(gca,'fontsize',14);
-title({'','Phase difference statistics'});
