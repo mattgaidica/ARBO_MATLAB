@@ -2,6 +2,7 @@
 fs = 250;
 forecastSec = 2;
 x = normalize(readmatrix('dreemVals.csv'),'range')*2-1;
+x = x(1:512);
 Hd = eslo_lp_ellip;
 
 y = normalize(sosfilt(Hd.sosMatrix,x),'range')*2-1;
@@ -28,7 +29,7 @@ legend({'original','filtered'},'location','northwest');
 
 % setup FFT
 L = numel(t);
-nPad = 2;
+nPad = 4;
 n = (2^nextpow2(L)) * nPad; % force zero padding for interpolation
 Y = fft(y,n); % remember, Y is complex
 f = fs*(0:(n/2))/n;

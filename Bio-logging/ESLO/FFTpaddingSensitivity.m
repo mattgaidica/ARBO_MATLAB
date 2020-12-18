@@ -10,18 +10,22 @@ if do
 end
 
 Hd = eslo_lp_ellip;
-nTrial = 10000;
+nTrial = 1;
 padFactor = 1:10;
 results_phase = zeros(nTrial,numel(padFactor));
 results_freq = zeros(nTrial,numel(padFactor));
-for iTrial = 1:nTrial
+ff(600,500);
+for iTrial = 8%1:nTrial
     x = data(eegStart:end,iTrial);
     x = x(1:1024);
     y = sosfilt(Hd.sosMatrix,x);
     % setup FFT
     L = numel(y);
+    lns = [];
     for iPad = 1:numel(padFactor)
         n = (2^nextpow2(L)) * padFactor(iPad); % force zero padding for interpolation
+%         z = repmat(y,padFactor(iPad),1);
+%         n = numel(z);
         Y = fft(y,n); % remember, Y is complex
         f = fs*(0:(n/2))/n;
         P = abs(Y/n).^2; % power of FFT
@@ -33,6 +37,47 @@ for iTrial = 1:nTrial
         phase = Asub(k); % use k (key) to identify dominant phase
         results_phase(iTrial,iPad) = phase;
         results_freq(iTrial,iPad) = freq;
+        
+        if iPad == 1
+            subplot(311);
+            plot(x,'k','linewidth',2);
+            ylabel('amplitude');
+            yyaxis right;
+            plot(y,'r','linewidth',2);
+            xlabel('samples');
+            grid on;
+            set(gca,'ycolor','r');
+            xlim([1 numel(x)]);
+            set(gca,'fontsize',14);
+            legend({'original','filtered'});
+        end
+        
+        if iPad == 1 || iPad == 10
+            subplot(312);
+            lns(numel(lns)+1) = plot(f,normalize(Psub,'range'),'linewidth',2);
+            hold on;
+            xlim([0 4]);
+            ylim([0 1]);
+            hold on;
+            plot([freq,freq],ylim,'k--');
+            grid on
+            legend(lns,{'n=1','n=10'});
+            set(gca,'fontsize',14);
+            xlabel('freq (Hz)');
+            ylabel('power (a.u.)');
+
+            subplot(313);
+            plot(f,Asub,'linewidth',2);
+            hold on;
+            xlim([0 4]);
+            ylim([-pi pi]);
+            plot([freq,freq],ylim,'k--');
+            set(gca,'fontsize',14);
+            xlabel('freq (Hz)');
+            ylabel('phase (rad)');
+            grid on
+        end
+        
     end
 end
 

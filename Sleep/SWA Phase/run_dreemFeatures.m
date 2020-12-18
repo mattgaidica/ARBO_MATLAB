@@ -7,7 +7,9 @@ if do
     tr = readmatrix(trainfile);
     data = h5read(h5file,'/features');
     do = false;
+    SWA_HA_idx = find(tr(:,2) == 2);
 end
+
 f1 = 0.5;
 f2 = 4;
 [A,B,C,D] = ellip(10,0.5,40,[f1/fs*2 f2/fs*2]);
@@ -17,7 +19,7 @@ sos = ss2sos(A,B,C,D);
 trainSecs = 3;
 compile_P = [];
 compile_P_filt = [];
-for useHA = 1:10000%numel(SWA_HA_idx)
+for useHA = 1:100%numel(SWA_HA_idx)
     fprintf('HA:%03d\n',useHA);
     x = data(eegStart:end,SWA_HA_idx(useHA));
     [~,~,P] = dominantFFT(x,fs,0,fs);
