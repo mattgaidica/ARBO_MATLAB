@@ -43,7 +43,13 @@ data = [];
 compile_iAdv = [];
 dispBuffer = NaN(Fs * showSec,1);
 needPlot = true;
+needWait = true;
 while(true)
+    if needWait
+        hWaitbar = waitbar(0, 'Iteration 1', 'Name', 'ESLO','CreateCancelBtn','delete(gcbf)');
+        set(hWaitbar,'Position',[0,0,360,78]);
+        needWait = false;
+    end
     pause(0.5);
     if s.NumBytesAvailable > 1
         ii = ii + 1;
@@ -103,8 +109,6 @@ while(true)
         
         if needPlot
             h = ff(1300,400);
-            hWaitbar = waitbar(0, 'Iteration 1', 'Name', 'ESLO','CreateCancelBtn','delete(gcbf)');
-            set(hWaitbar,'Position',[0,0,360,78]);
             needPlot = false;
         end
         
@@ -142,10 +146,15 @@ while(true)
     
     if exist('hWaitbar','var')
         if ~ishandle(hWaitbar)
-            if ~needPlot
-                close(h)
+            if ~needWait
+                % shutdown
+                clear hWaitbar;
                 break;
             end
+%             if ~needPlot
+%                 close(h)
+%                 break;
+%             end
         else
             if fileIsOpen
                 waitbar(dataCount/countSplitFile,hWaitbar,...
