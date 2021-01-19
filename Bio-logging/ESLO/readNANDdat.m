@@ -1,10 +1,10 @@
 clear all
-file = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory_20210105_InesMouse.dat';
-file = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory.dat';
-fid = fopen(file);
+% fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory_20210105_InesMouse.dat';
+fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory.dat';
+fid = fopen(fname);
 
 A = fread(fid,inf);
-A = A(1:20000);
+% A = A(1:20000);
 % A = A(4097:end); % Heart
 % A = A(262145:(262145+50000-1)); % Ines
 fclose(fid);
@@ -22,29 +22,7 @@ fclose(fid);
 % % endId = endId - mod(endId,4);
 % % A = A(startId:endId);
 
-data = int32(zeros(numel(A)/4,1));
-type = uint8(zeros(numel(A)/4,1));
-% mode = zero(numel(A)/4,1);
-sampleCount = 1;
-% mode is 0
-zeroids = [];
-for ii = 1:4:numel(A)
-    type(sampleCount) = uint8(A(ii));
-    thisData = uint32(0);
-    thisData = bitor(thisData, bitshift(uint32(A(ii+1)),16));
-    thisData = bitor(thisData, bitshift(uint32(A(ii+2)),8));
-    thisData = bitor(thisData, uint32(A(ii+3)));
-    if (bitget(thisData,24) == 1)
-        thisData = bitor(thisData,0xFF000000);
-    end
-    data(sampleCount) = typecast(thisData,'int32');
-    % !! why is EEG data = 0 sometimes?
-%     if data(sampleCount) == 0
-%         zeroids = [zeroids;sampleCount];
-%     else
-        sampleCount = sampleCount + 1;
-%     end
-end
+[type,data] = extractNAND(fname);
 
 close all
 colors = lines(10);
