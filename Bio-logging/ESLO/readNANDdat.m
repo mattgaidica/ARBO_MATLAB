@@ -1,10 +1,11 @@
 clear all
 % fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory_20210105_InesMouse.dat';
-fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory.dat';
+fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory_20210108_MattHeart.dat';
+% fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory.dat';
 fid = fopen(fname);
 
 A = fread(fid,inf);
-% A = A(1:20000);
+% A = A(1:20000); %
 % A = A(4097:end); % Heart
 % A = A(262145:(262145+50000-1)); % Ines
 fclose(fid);
@@ -43,7 +44,7 @@ for ii = [2,3,5]
     subplot(311);
     lns(rowCount+1) = plot(t,theseData,'color',colors(rowCount+1,:));
     hold on;
-    plot(t,normalize(y,'range')-0.5 + rowCount,'color','r');
+%     plot(t,normalize(y,'range')-0.5 + rowCount,'color','r');
     
     subplot(312);
     L = numel(t);
