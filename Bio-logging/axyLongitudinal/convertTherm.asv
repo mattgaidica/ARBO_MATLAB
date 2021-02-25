@@ -1,9 +1,0 @@
-function [tempC,tempF] = convertTherm(Vo)
-Vi = 1.8; % volts
-Rt = (Vo*100000) / (Vi-Vo);
-
-% Linear model Poly1:
-% f(x) = p1*x + p2
-% Coefficients (with 95% confidence bounds):
-% p1 =       -5031  (-5348, -4714)
-% p2 =   2.287e+05  (2.209e+05, 2.365e+05)

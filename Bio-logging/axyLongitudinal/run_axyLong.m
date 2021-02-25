@@ -17,7 +17,7 @@ if ~exist('axydata','var')
     timeSec = 1:numel(ODBA); % minutes
     light = normalize(equalVectors(axydata.LIGHT(:,2),timeSec),'range'); % make minutes
 end
-
+n = 60;
 W = zeros(size(ODBA));
 for ii = 1:n
     W = W + smoothdata(ODBA,'loess',1440/ii);
@@ -63,11 +63,13 @@ for ii = 1:2
     legend({'Sadeh','asleep/awake','Homeograph','asleep/awake'},'location','eastoutside');
     xlim([1 numel(ODBA)]);
     set(gca,'fontsize',16);
-    title('Sadeh vs. Homeograph');
+    fracSame = numel(find(sadeh_bin == W_bin)) / numel(W_bin);
+    title(sprintf('Sadeh vs. Homeograph (%2.2f%% agreement)',fracSame*100));
 end
 xlim([numel(ODBA)-3000 numel(ODBA)]);
 title('Zoomed in');
 
+%%
 close all
 ff(1200,800);
 
