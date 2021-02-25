@@ -1,8 +1,16 @@
-*
-!.gitignore
-!*.m
-!/sleep
-!/sleep/SWA\ Phase
-!/Bio-logging
-!/Bio-logging/ESLO
-!/Bio-logging/ESLO/Utils
+*.csv
+*.avi
+*.cwa
+*.mat
+*.png
+*.jpg
+*.jpeg
+Sleep/codegen
+Sleep/WFDB
+*.wav
+*.mp4
+*.bin
+*.dat
+*.arbo
+*.inf
+*.m4a
