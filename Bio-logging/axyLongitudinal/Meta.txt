@@ -1,0 +1,6 @@
+Subject Sex: Male
+Subject Health: No health related issues
+Subject DOB: 14/10/1981
+Mounting Location: Non-dominant wrist (left)
+Sampling Frequency: 100Hz
+Range: ±8g
