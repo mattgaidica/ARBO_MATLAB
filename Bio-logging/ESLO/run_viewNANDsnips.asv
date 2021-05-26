@@ -1,9 +1,0 @@
-useSamples = 10000;
-
-close all;
-ff(1000,600);
-
-subplot(211);
-theseData = find(type==2);
-f
-

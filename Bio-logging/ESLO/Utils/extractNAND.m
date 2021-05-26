@@ -22,9 +22,6 @@ labels(:,2) = ["AbsoluteTime";"Relative Time";"EEG1";"EEG2";"EEG3";"EEG4";"Batte
     "XlX";"XlY";"XlZ";"MgX";"MgY";"MgZ";"Temperature";"Error";"Version"];
 labels(:,1) = 0:size(labels,1)-1;
 
-if strcmp(fname,'')
-    fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory.dat';
-end
 fid = fopen(fname);
 A = fread(fid,inf);
 fclose(fid);

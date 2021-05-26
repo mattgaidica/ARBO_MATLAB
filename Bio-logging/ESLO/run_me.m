@@ -1,4 +1,4 @@
-[type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210311_122749.txt'); % 500
+[type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210525_145309.txt'); % 500
 % [type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210311_094313.txt'); % 100
 % [type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210311_094101.txt'); % 750
 % [type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210311_093525.txt'); % 7500
@@ -9,13 +9,23 @@ subplot(211);
 if ~isempty(data(type==2))
     plot(data(type==2),'linewidth',1);
     hold on;
-    plot(data(type==3),'linewidth',1);
-    plot(data(type==4),'linewidth',1);
-    plot(data(type==5),'linewidth',1);
-    xlim(size(data(type==5)));
 end
+if ~isempty(data(type==3))
+    plot(data(type==3),'linewidth',1);
+    hold on;
+end
+if ~isempty(data(type==4))
+    plot(data(type==4),'linewidth',1);
+    hold on;
+end
+if ~isempty(data(type==5))
+    plot(data(type==5),'linewidth',1);
+    hold on;
+end
+
+%     xlim(size(data(type==5)));
 title('EEG');
-legend({'Ch1','Ch2','Ch3','Ch4'});
+% legend({'Ch1','Ch2','Ch3','Ch4'});
 set(gca,'fontsize',14);
 xlabel('samples');
 ylabel('raw amplitude');
