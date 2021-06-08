@@ -1,14 +1,16 @@
 clear all
+fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory.dat';
+isDat = true;
 % fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory_20210105_InesMouse.dat';
-fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory_20210108_MattHeart.dat';
+% fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory_20210108_MattHeart.dat';
 % fname = '/Users/matt/ti/workspaces/ESLO_dev/NAND_CC2652RB_LAUNCHXL/memory.dat';
-fid = fopen(fname);
+% fid = fopen(fname);
 
-A = fread(fid,inf);
+% A = fread(fid,inf);
 % A = A(1:20000); %
 % A = A(4097:end); % Heart
 % A = A(262145:(262145+50000-1)); % Ines
-fclose(fid);
+% fclose(fid);
 
 % video is 1:28:55, = 88:55
 % stoped at 12:10PM, -1:10 in video
@@ -23,7 +25,7 @@ fclose(fid);
 % % endId = endId - mod(endId,4);
 % % A = A(startId:endId);
 
-[type,data] = extractNAND(fname);
+[type,data,labels] = extractNAND(fname,isDat);
 
 close all
 colors = lines(10);

@@ -1,4 +1,4 @@
-[type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210525_145309.txt'); % 500
+[type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210608_094428.txt'); % 500
 % [type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210311_094313.txt'); % 100
 % [type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210311_094101.txt'); % 750
 % [type,data,labels] = extractNAND('/Users/matt/Downloads/ESLO_20210311_093525.txt'); % 7500
