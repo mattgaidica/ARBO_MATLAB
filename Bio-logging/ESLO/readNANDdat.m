@@ -27,15 +27,16 @@ isDat = true;
 
 [type,data,labels] = extractNAND(fname,isDat);
 
+%%
 close all
 colors = lines(10);
 ff(1200,800);
 axs = [];
 rowCount = 0;
-Fs = 250;
+Fs = 128;
 Hd = filt_4Hzbutter;
 
-for ii = [2,3,5]
+for ii = 2:5
     theseData = data(type == ii);
     theseData = normalize(theseData,'range');
     theseData = theseData - mean(theseData) + rowCount;
@@ -63,7 +64,7 @@ end
 axs(1) = subplot(311);
 yticks([0:rowCount-1]);
 ylim([-1 3]);
-legend(fliplr(lns),fliplr({'EEG_{parietal}','EEG_{frontal}','EMG'}),'location','northwest');
+legend(lns,{'Ch1','Ch2','Ch3','Ch4'},'location','northwest');
 xlim([min(t) max(t)]);
 xlabel('Time (s)');
 ylabel('Amplitude (a.u.)');
@@ -81,34 +82,34 @@ ylabel('Amplitude (a.u.)');
 set(gca,'fontsize',14);
 title('FFT of EEG');
 
-axs(2) = subplot(313);
-Fs = 25;
-for ii = 7:9
-    theseData = data(type == ii);
-    t = linspace(0,numel(theseData)/Fs,numel(theseData));
-    plot(t,theseData - mean(theseData),'color',colors(ii-3,:));
-    hold on;
-end
-legend({'axy x','axy y','axy z'},'location','northwest');
-xlim([min(t) max(t)]);
-xlabel('Time (s)');
-ylabel('Amplitude (a.u.)');
-set(gca,'fontsize',14);
-grid on;
-set(gca,'XGrid','off');
-ylim([-0.5 0.5]*10^4);
-yticks(sort([0,[-0.5 0.5]*10^4]));
-title('Accelerometer');
+% axs(2) = subplot(313);
+% Fs = 25;
+% for ii = 7:9
+%     theseData = data(type == ii);
+%     t = linspace(0,numel(theseData)/Fs,numel(theseData));
+%     plot(t,theseData - mean(theseData),'color',colors(ii-3,:));
+%     hold on;
+% end
+% legend({'axy x','axy y','axy z'},'location','northwest');
+% xlim([min(t) max(t)]);
+% xlabel('Time (s)');
+% ylabel('Amplitude (a.u.)');
+% set(gca,'fontsize',14);
+% grid on;
+% set(gca,'XGrid','off');
+% ylim([-0.5 0.5]*10^4);
+% yticks(sort([0,[-0.5 0.5]*10^4]));
+% title('Accelerometer');
 
-Fs = 1;
+Fs = 1/60;
 yyaxis right;
 theseData = data(type == 6);
 t = linspace(0,numel(theseData)/Fs,numel(theseData));
 plot(t,double(theseData) / 10^6,'r');
 set(gca,'ycolor','r');
 ylabel('Battery (V)');
-ylim([2.5 4]);
-yticks([2.4:0.2:3.0]);
+ylim([2.3 3.3]);
+yticks([2.4:0.1:3.0]);
 
 linkaxes(axs,'x');
 
