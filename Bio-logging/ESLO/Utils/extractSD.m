@@ -1,6 +1,6 @@
-% function [type,data,labels] = extractSD(fname)
+function [type,data,labels] = extractSD(fname)
 % note: type is 0-indexed, labels in MATLAB will be 1-indexed
-labels(:,2) = ["AbsoluteTime";"Relative Time";"EEG1";"EEG2";"EEG3";"EEG4";"BatteryVoltage";...
+labels(:,2) = ["AbsoluteTime";"RelativeTime";"EEG1";"EEG2";"EEG3";"EEG4";"BatteryVoltage";...
     "XlX";"XlY";"XlZ";"MgX";"MgY";"MgZ";"Temperature";"Error";"Version"];
 labels(:,1) = 0:size(labels,1)-1;
 
