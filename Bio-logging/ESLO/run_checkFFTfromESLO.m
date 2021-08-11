@@ -1,8 +1,8 @@
 fname = '/Volumes/LEXAR633X/ESLORB2.TXT';
-% [type,data,labels] = extractSD(fname);
+[type,data,labels] = extractSD(fname);
 SDreport(type,labels);
 
-Fs = 125; % eff: 85Hz
+Fs = 50; % eff: 85Hz
 Fs_batt = 1/60; % 1/period
 useSamples = Fs*10;
 useCh = median(type);
