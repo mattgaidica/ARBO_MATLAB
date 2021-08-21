@@ -1,9 +1,11 @@
 if do
     fname = '/Users/matt/Box Sync/Biologging/Database/0006/ESLORB2.TXT';
     [type,data,labels] = extractSD(fname);
+    do = false;
 end
 SDreport(type,labels);
 Fs = 50;
+%%
 
 EEG1 = data(type==3);
 EEG2 = data(type==4);
