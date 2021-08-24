@@ -10,6 +10,7 @@ Fs = 50;
 axyFs = 1;
 
 FLIM = [0 10];
+TRES = 60*2;
 rows = 3;
 cols = 1;
 fs = 12;
@@ -45,7 +46,7 @@ for iRow = useRows(3)'
     yyaxis right;
     plot(t,OA_EEG,'r');
     legend({'EEG','OA (axy)'});
-    title('Raw EEG and Axy Data');
+    title('Raw EEG and Accelerometer Data');
     set(gca,'fontsize',fs,'TitleFontSizeMultiplier',tm);
     set(gca,'ycolor','r');
     ylabel('OA');
@@ -53,10 +54,11 @@ for iRow = useRows(3)'
     
     subplot(rows,cols,2);
     [p_spectrum,f_spectrum,t_spectrum] = pspectrum(EEGdata,Fs,...
-        'spectrogram','FrequencyLimits',FLIM);
+        'spectrogram','FrequencyLimits',FLIM,'TimeResolution',TRES);
     imagesc(t_spectrum/60/60,f_spectrum,p_spectrum);
     colormap(magma);
-    caxisVals = caxis/2;
+    caxisVals = caxis/1.5;
+    caxis(caxisVals);
     cb = cbAside(gca,'Power','k');
     set(gca,'ydir','normal');
     xlabel('Time (hours)');
@@ -89,7 +91,7 @@ load('spect_xs');
 subplot(rows,cols,2);
 for ii = 1:2
     text(xs(ii),7,{plotTitles(ii),'\downarrow'},'color','w',...
-        'fontsize',12,'horizontalalignment','center');
+        'fontsize',14,'horizontalalignment','center');
 end
 saveas(gcf,'sleepRecording_NASA.jpg');
 
@@ -124,7 +126,7 @@ for ii = 1:2
     end
     hold on;
     ln = plot(0,0,'r');
-    text(max(xs)+0.2,max(ys),sprintf("%1.2fHz Oscillation",1/mean(diff(xs))),...
+    text(max(xs)+0.2,max(ys),sprintf("%1.2f Hz Oscillation",1/mean(diff(xs))),...
         'fontsize',14,'color','r');
     set(gca,'fontsize',fs,'TitleFontSizeMultiplier',tm);
 end
