@@ -13,7 +13,7 @@ FLIM = [0 10];
 TRES = 60*2;
 rows = 3;
 cols = 1;
-fs = 12;
+fs = 16;
 tm = 1.25;
 maxHours = 8;
 close all
@@ -41,11 +41,11 @@ for iRow = useRows(3)'
     xticks(0:maxHours);
     xticklabels(compose("%1.0f",xticks));
     
-    text(0,max(ylim)-max(ylim)/5,sprintf("%s %s","\leftarrow",dataIntervals.time(iRow)));
+    text(0,max(ylim)-max(ylim)/5,sprintf("%s %s","\leftarrow",dataIntervals.time(iRow)),'fontsize',fs);
     
     yyaxis right;
     plot(t,OA_EEG,'r');
-    legend({'EEG','OA (axy)'});
+    legend({'EEG','OA'});
     title('Raw EEG and Accelerometer Data');
     set(gca,'fontsize',fs,'TitleFontSizeMultiplier',tm);
     set(gca,'ycolor','r');
@@ -60,6 +60,7 @@ for iRow = useRows(3)'
     caxisVals = caxis/1.5;
     caxis(caxisVals);
     cb = cbAside(gca,'Power','k');
+    cb.TickLabels = {};
     set(gca,'ydir','normal');
     xlabel('Time (hours)');
     ylabel('Freq (Hz)');
@@ -121,13 +122,13 @@ for ii = 1:2
     xlabel('Time (sec)');
     grid on;
     for iArrow = 1:numel(xs)
-        text(xs(iArrow),ys(iArrow),"\downarrow",'fontsize',22,...
+        text(xs(iArrow),ys(iArrow),"\downarrow",'fontsize',fs*2,...
             'color','r','horizontalalignment','center','verticalalignment','bottom');
     end
     hold on;
     ln = plot(0,0,'r');
     text(max(xs)+0.2,max(ys),sprintf("%1.2f Hz Oscillation",1/mean(diff(xs))),...
-        'fontsize',14,'color','r');
+        'fontsize',fs,'color','r');
     set(gca,'fontsize',fs,'TitleFontSizeMultiplier',tm);
 end
 saveas(gcf,'slowOscillation_NASA.jpg');
