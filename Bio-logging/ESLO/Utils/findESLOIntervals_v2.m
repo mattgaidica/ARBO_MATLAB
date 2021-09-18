@@ -5,53 +5,58 @@ function dataIntervals = findESLOIntervals(data,type,labels)
 % through a lookup. Note: EEG could be continuous (one start)
 % !! add axy data to intervals
 % !! find where user connected over BLE???
-
-recInterval = 60; % seconds, for battery, time, temperature
-nBetween = 16;
+Fs = 125;
+fprintf("Using Fs = %iHz\n",Fs);
 dataIntervals = table;
 timeIds = find(type == ESLOType("AbsoluteTime",labels));
 
 dataCount = 0;
+stateIds = find(type==ESLOType("EEGState",labels));
+EEGstate = data(stateIds);
 for iEEG = 1:4
     useType = ESLOType("EEG1",labels) + iEEG - 1;
-    EEG_ids = find(type == useType);
-    offLocs = EEG_ids(diff([EEG_ids numel(type)]) > nBetween); % add numel(type) as final 'off'
+    theseEEGids = find(type == useType);
+    EEG_on = stateIds(EEGstate == 1);
+    EEG_off = stateIds(EEGstate == 0);
     onLocs = [];
-    for iOff = 1:numel(offLocs)
-        if iOff == 1
-            onLocs(iOff) = EEG_ids(find(EEG_ids < offLocs(iOff),1,'first'));
-        else
-            onLocs(iOff) = EEG_ids(find(EEG_ids < offLocs(iOff) & EEG_ids > offLocs(iOff-1),1,'first'));
+    offLocs = [];
+    % the first EEGState should always be 0 (written at init)
+    for ii = 1:numel(EEG_on)
+        onLoc = find(theseEEGids > EEG_on(ii),1,'first');
+        if ~isempty(onLoc)
+            onLocs(ii) = onLoc;
+            offLoc = EEG_off(find(EEG_off > theseEEGids(onLoc),1,'first'));
+            if ~isempty(offLoc)
+                offLocs(ii) = find(theseEEGids < offLoc,1,'last');
+            else
+                offLocs(ii) = numel(theseEEGids);
+                break; % this must be the last recording epoch
+            end
         end
     end
+    
     if numel(onLocs) ~= numel(offLocs)
         error('on/off mismatch');
     end
     
     warning ('off','all');
     typeIds = find(type == useType);
-    for iOnOff = 1:numel(onLocs)
-        theseDataIds = typeIds(typeIds >= onLocs(iOnOff) & typeIds <= offLocs(iOnOff));
-
-        if isempty(theseDataIds)
-            continue;
-        end
-
+    for ii = 1:numel(onLocs)
         dataCount = dataCount + 1;
-
-        t1Id = closest(timeIds,onLocs(iOnOff));
+        dataRange = theseEEGids(onLocs(ii):offLocs(ii));
+        t1Id = closest(timeIds,onLocs(ii));
         % add 0x61000000 for unix/posix time !! may change based on deployment date
         t1 = data(timeIds(t1Id)) + int32(0x61000000);
-        t2Id = closest(timeIds,offLocs(iOnOff));
+        t2Id = closest(timeIds,offLocs(ii));
         t2 = data(timeIds(t2Id)) + int32(0x61000000);
 
-        dataIntervals.segment(dataCount) = iOnOff;
+        dataIntervals.segment(dataCount) = ii;
         dataIntervals.type(dataCount) = useType;
         dataIntervals.label(dataCount) = labels(str2double(labels(:,1)) == useType,2);
-        dataIntervals.time(dataCount) = datetime(t1,'ConvertFrom','posixtime',...
+        dataIntervals.startTime(dataCount) = datetime(t1,'ConvertFrom','posixtime',...
             'Format','dd-MMM-yyyy HH:mm:ss','TimeZone','America/Detroit');
-        dataIntervals.duration(dataCount) = t2 - t1;
-        dataIntervals.data(dataCount) = {data(theseDataIds)};
+        dataIntervals.duration(dataCount) = numel(dataRange) / Fs;
+        dataIntervals.data(dataCount) = {data(dataRange)};
     end
     warning ('on','all');
 end
