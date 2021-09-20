@@ -1,10 +1,8 @@
-filename = '/Users/matt/Desktop/Screen Recording 2020-04-01 at 10.07.34 PM.mov'; % forest
-% filename = '/Users/matt/Desktop/leapingSquirrel.mov'; % leap
-% filename = '/Users/matt/Desktop/Screen Recording 2020-04-02 at 12.31.11 AM.mov';
-% filename = '/Users/matt/Desktop/Screen Recording 2020-04-01 at 10.53.19 PM.mov';
+filename = '/Users/matt/Desktop/Squirrel_sleep_trim.mp4';
 v = VideoReader(filename);
 vW = VideoWriter('~/Desktop/squirrelDetect.mp4','MPEG-4');
 vW.Quality = 95;
+vw.FrameRate = 480;
 
 % % % % if false
 % % % %     rows = 5;
@@ -30,19 +28,30 @@ vW.Quality = 95;
 % % % % end
 
 close all
-ff(1400,600);
 rows = 4;
 cols = 6;
 nBuffer = 15;
-backgroundArr = zeros(v.Height,v.Width,3,nBuffer,'uint8');
-replayRate = 4;
+replayRate = 40;
 useFrames = round(linspace(1,v.NumFrames,round(v.NumFrames/replayRate)));
 fracArr = NaN(size(useFrames));
 se = strel('disk',2);
 fontsize = 14;
+% use rect
+frame = read(v,useFrames(1));
+imshow(frame);
+roi = drawrectangle; %roi.Position = [x,y,width,height]
+pos = round(roi.Position);
+useX = pos(1):pos(1)+pos(3)-1;
+useY = pos(2):pos(2)+pos(4)-1;
+close all;
+
+t = linspace(0,v.Duration/60,numel(useFrames));
+backgroundArr = zeros(numel(useY),numel(useX),3,nBuffer,'uint8');
 open(vW);
+ff(1400,600);
 for ii = 1:numel(useFrames)
-    frame = read(v,useFrames(ii));
+    orig_frame = read(v,useFrames(ii));
+    frame = orig_frame(useY,useX,:); % use rect
     frameHSV = rgb2hsv(frame);
     if ii <= nBuffer
         backgroundArr(:,:,:,ii) = frame;
@@ -74,19 +83,19 @@ for ii = 1:numel(useFrames)
     title('Binarized');
     set(gca,'fontsize',fontsize);
     
-    subplot(rows,cols,[13:24]);
-    fracArr(ii) = sqrt(sum(binaryOpen(:))/numel(binaryOpen));
-    plot(fracArr,'k');
-    hold on;
-    ln = plot([ii-nBuffer ii],[0 0],'k-','linewidth',5);
-    xlim([1,numel(useFrames)]);
-    ylim([0 0.7]);
+    subplot(rows,cols,13:24);
+    fracArr(ii) = sum(binaryOpen(:))/numel(binaryOpen);
+    plot(t,fracArr,'k');
+%     hold on;
+%     ln = plot([ii-nBuffer ii],[0 0],'k-','linewidth',5);
+    xlim([min(t) max(t)]);
+    ylim([0 0.1]);
     title('Quantified Movement');
-    ylabel('fraction of change');
-    xlabel('frame');
+    ylabel('Fraction of Change');
+    xlabel('Time (min)');
     set(gca,'fontsize',fontsize);
-    legend(ln,'background buffer');
-    legend boxoff;
+%     legend(ln,'background buffer');
+%     legend boxoff;
     hold off;
     
     drawnow;
@@ -94,3 +103,4 @@ for ii = 1:numel(useFrames)
     writeVideo(vW,A);
 end
 close(vW);
+close all;
