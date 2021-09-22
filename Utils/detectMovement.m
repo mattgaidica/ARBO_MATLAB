@@ -1,8 +1,9 @@
-filename = '/Users/matt/Desktop/Squirrel_sleep_trim.mp4';
+% filename = '/Users/matt/Desktop/Squirrel_sleep_trim.mp4';
+filename = '/Volumes/Seagate Expansion Drive/Gaidica/Database/0009/record/20210919/04/19.mp4';
 v = VideoReader(filename);
-vW = VideoWriter('~/Desktop/squirrelDetect.mp4','MPEG-4');
+vW = VideoWriter('~/Desktop/squirrelDetect_night.mp4','MPEG-4');
 vW.Quality = 95;
-vw.FrameRate = 480;
+vw.FrameRate = 120;
 
 % % % % if false
 % % % %     rows = 5;
@@ -30,8 +31,8 @@ vw.FrameRate = 480;
 close all
 rows = 4;
 cols = 6;
-nBuffer = 15;
-replayRate = 40;
+nBuffer = 5;
+replayRate = 1;
 useFrames = round(linspace(1,v.NumFrames,round(v.NumFrames/replayRate)));
 fracArr = NaN(size(useFrames));
 se = strel('disk',2);
