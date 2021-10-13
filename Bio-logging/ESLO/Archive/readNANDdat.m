@@ -26,7 +26,7 @@ isDat = true;
 % % A = A(startId:endId);
 
 [type,data,labels] = extractNAND(fname,isDat);
-
+SDreport(type,labels);
 %%
 close all
 colors = lines(10);

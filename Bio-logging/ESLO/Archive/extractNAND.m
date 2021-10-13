@@ -18,8 +18,8 @@
 % } ESLO_Type;
 function [type,data,labels] = extractNAND(fname,isDat)
 % note: type is 0-indexed, labels in MATLAB will be 1-indexed
-labels(:,2) = ["AbsoluteTime";"Relative Time";"EEG1";"EEG2";"EEG3";"EEG4";"BatteryVoltage";...
-    "XlX";"XlY";"XlZ";"MgX";"MgY";"MgZ";"Temperature";"Error";"Version"];
+labels(:,2) = ["AbsoluteTime";"RelativeTime";"EEG1";"EEG2";"EEG3";"EEG4";"BatteryVoltage";...
+    "XlX";"XlY";"XlZ";"EEGState";"NotUsed1";"NotUsed2";"Temperature";"Error";"Version"];
 labels(:,1) = 0:size(labels,1)-1;
 
 fid = fopen(fname);
@@ -55,6 +55,7 @@ for ii = 1:4:numel(A)
         thisData = bitor(thisData, bitshift(uint32(A(ii+2)),16)); % v2
     end
     
+    % this is not going to work with THERM data right now 20211009
     if (bitget(thisData,24) == 1) % apply sign
         thisData = bitor(thisData,0xFF000000);
     end

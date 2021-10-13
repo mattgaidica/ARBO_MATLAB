@@ -1,4 +1,4 @@
-function dataIntervals = findESLOIntervals(data,type,labels)
+function dataIntervals = findESLOIntervals_v2(data,type,labels)
 % The goal here is to extract the EEG signal with a relatively accurate
 % time point. Since axy data is either OFF or CONTINUOUS (1Hz or 10Hz) then
 % it should be accessible time-locked to EEG or somehow be related to EEG
@@ -44,10 +44,10 @@ for iEEG = 1:4
     for ii = 1:numel(onLocs)
         dataCount = dataCount + 1;
         dataRange = theseEEGids(onLocs(ii):offLocs(ii));
-        t1Id = closest(timeIds,onLocs(ii));
+        t1Id = closest(timeIds,dataRange(1));
         % add 0x61000000 for unix/posix time !! may change based on deployment date
         t1 = data(timeIds(t1Id)) + int32(0x61000000);
-        t2Id = closest(timeIds,offLocs(ii));
+        t2Id = closest(timeIds,dataRange(end));
         t2 = data(timeIds(t2Id)) + int32(0x61000000);
 
         dataIntervals.segment(dataCount) = ii;

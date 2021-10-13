@@ -52,19 +52,20 @@ for ii = 1:2
     
     plot(W_z,'color',colors(1,:),'linewidth',1);
     plot(W_bin+6,'color',colors(1,:),'linewidth',1);
-    plot(xlim,[0 0],'k:');
+    ylabel('Algorithm Transformation');
     
     yyaxis right;
-    plot(ODBA,'color',colors(5,:));
-    set(gca,'ycolor',colors(5,:));
+    plot(ODBA,'-','color','k');
+    set(gca,'ycolor','k');
     ylabel('ODBA');
     yticks([]);
+    plot(xlim,[0 0],'k:');
     
-    legend({'Sadeh','asleep/awake','Homeograph','asleep/awake'},'location','eastoutside');
+    legend({'Sadeh','binary asleep/awake','Homeogram','binary asleep/awake','Raw Human Data'},'location','eastoutside');
     xlim([1 numel(ODBA)]);
     set(gca,'fontsize',16);
     fracSame = numel(find(sadeh_bin == W_bin)) / numel(W_bin);
-    title(sprintf('Sadeh vs. Homeograph (%2.2f%% agreement)',fracSame*100));
+    title(sprintf('Sadeh vs. Homeogram (%2.2f%% agreement)',fracSame*100));
 end
 xlim([numel(ODBA)-3000 numel(ODBA)]);
 title('Zoomed in');
