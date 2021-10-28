@@ -1,6 +1,9 @@
+screenlogPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/0194_NA-Blue_axy/Base Stations/20211015_20211018';
+doPlot = false;
+
 allData = [];
 for iBase = 1:5
-    baseFile = sprintf("/Users/matt/Downloads/screenlog_BS%i.csv",iBase);
+    baseFile = sprintf("%s/screenlog_BS%i.csv",screenlogPath,iBase);
     T = readtable(baseFile);
 
     useIds_ESLO = T.Var1 == 262705969627137;
@@ -25,9 +28,6 @@ end
 
 %%
 % datetime(allData(1,2), 'convertfrom', 'posixtime', 'Format', 'dd-MMM-uuuu HH:mm:ss')
-close all
-ff(1400,800);
-
 latlim = [42.2729,42.2742];
 lonlim = [-83.8060,-83.8031];
 
@@ -42,6 +42,10 @@ maxTime = max(allData(:,2));
 minutesRecorded = round(maxTime-minTime)/60;
 tBins = linspace(minTime,maxTime,minutesRecorded);
 binnedRSSI = [];
+if doPlot
+    close all
+    ff(1400,800);
+end
 for iBin = 1:numel(tBins)-1
     RSSIs = [];
     for iBase = 1:5
@@ -52,16 +56,18 @@ for iBin = 1:numel(tBins)-1
     if all(isnan(RSSIs))
         continue;
     end
-    geoscatter(latLons(:,1),latLons(:,2),round((db2mag(RSSIs)*1000000).^2),[1 0 0],'filled','MarkerFaceAlpha',.5);
-    for iBase = 1:5
-        text(latLons(iBase,1),latLons(iBase,2),sprintf('%i',iBase));
+    if doPlot
+        geoscatter(latLons(:,1),latLons(:,2),round((db2mag(RSSIs)*1000000).^2),[1 0 0],'filled','MarkerFaceAlpha',.5);
+        for iBase = 1:5
+            text(latLons(iBase,1),latLons(iBase,2),sprintf('%i',iBase));
+        end
+        geobasemap satellite;
+        geolimits(latlim,lonlim);
+        dt = datetime(tBins(iBin),'convertfrom','posixtime','Format','dd-MMM-uuuu HH:mm:ss','TimeZone','local');
+        title(datestr(dt));
+        set(gca,'fontsize',14);
+        drawnow;
     end
-    geobasemap satellite;
-    geolimits(latlim,lonlim);
-    dt = datetime(tBins(iBin),'convertfrom','posixtime','Format','dd-MMM-uuuu HH:mm:ss','TimeZone','local');
-    title(datestr(dt));
-    set(gca,'fontsize',14);
-    drawnow;
 end
 
 %%
@@ -76,3 +82,5 @@ title('Signal Strength vs. Time');
 ylabel('Magnitude of RSSI');
 grid on;
 set(gca,'fontsize',14);
+save(fullfile(screenlogPath,'binnedRSSI'),'binnedRSSI','dtX','latLons');
+saveas(gcf,fullfile(screenlogPath,'BaseStation_SignalStrengthvsTime.jpg'));

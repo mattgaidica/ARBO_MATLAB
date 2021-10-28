@@ -1,5 +1,5 @@
 if do
-    fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/0008/ESLORB2.TXT';
+    fname = '/Volumes/LEXAR633X/ESLORB2.TXT';
     [type,data,labels] = extractSD(fname);
     do = 0;
 end
