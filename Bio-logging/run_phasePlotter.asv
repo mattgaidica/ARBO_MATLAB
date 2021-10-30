@@ -1,11 +1,10 @@
-Fc = 2; 
+Fc = 3; 
 Fs = 250;                   % samples per second
 dt = 1/Fs;                   % seconds per sample
-StopTime = 1.6;             % seconds
+StopTime = 1;             % seconds
 t = (0:dt:StopTime-dt)';     % seconds
 %%Sine wave:                    % hertz
-pShift = 180 * (pi/180);
-x = cos(2*pi*Fc*t + pShift);
+x = cos(2*pi*Fc*t);
 
 
 close all
@@ -26,18 +25,13 @@ xlim(xlims);
 [~,maxIdx] = max(abs(X));
 maxFreq = freq(maxIdx);
 hold on;
-xline(freq(maxIdx));
+xline(freq(maxIdx);
 title(sprintf("Max Freq: %1.2fHz",maxFreq));
 
-phaseAngle = angle(X);
 subplot(133);
 xlims = [0 20];
-plot(freq,phaseAngle,'k');
+plot(freq,angle(X),'k');
 xlim(xlims);
-hold on;
-maxAngle = phaseAngle(maxIdx);
-xline(freq(maxIdx));
-title(sprintf("Max Angle: %1.2fr, %1.2fdeg",maxAngle,maxAngle*(180/pi)));
 
 %%
 % Fn = Fs/2;                                                  % Nyquist Frequency
