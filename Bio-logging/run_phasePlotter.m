@@ -1,12 +1,27 @@
-Fc = 2; 
+Fc = 2.2705;
+angleFFT = .87797;
+tWindow = 256 / (250/2);
+t = 0:0.01:tWindow;
+x = cos(2*pi*Fc*t+angleFFT);
+degSec = 360 * Fc;
+endAngle = degSec * tWindow + (angleFFT*180/pi);
+modAngle = mod(endAngle*1000,360*1000);
+close all
+ff(1000,150);
+plot(t,x);
+xlim([min(t) max(t)]);
+
+title(sprintf("end deg: %1.2f, mod*1000: %1.2f",endAngle,modAngle));
+%%
+Fc = 1.5869; 
 Fs = 250;                   % samples per second
 dt = 1/Fs;                   % seconds per sample
-StopTime = 1.6;             % seconds
+StopTime = 256/250;             % seconds
 t = (0:dt:StopTime-dt)';     % seconds
 %%Sine wave:                    % hertz
-pShift = 180 * (pi/180);
+pShift = -.277;%180 * (pi/180);
 x = cos(2*pi*Fc*t + pShift);
-
+% x = flip(x);
 
 close all
 ff(1200,400);
@@ -18,9 +33,10 @@ title(sprintf("%1.2fHz",Fc));
 
 [X,freq] = positiveFFT_zero_padding(x,Fs,1024);
 
+powerFFT = abs(X);
 xlims = [0 20];
 subplot(132);
-plot(freq,abs(X),'k');
+plot(freq,powerFFT,'k');
 xlim(xlims);
 
 [~,maxIdx] = max(abs(X));
