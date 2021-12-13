@@ -1,17 +1,30 @@
-fname = '/Volumes/SWA_REC/00033.BIN';
+% note: there is a lot of typing going on to play nice between C and MATLAB
+% i.e. keep values uint32 until adding sign and convert all to double after
+fname = '/Volumes/SWA_REC/00001.BIN';
 fid = fopen(fname);
-A = fread(fid,inf,'int32');
+A = uint32(fread(fid,inf,'uint32'));
 fclose(fid);
-
-%%
-doSave = true;
-Fs = 125; % Hz
-data = A(1:dataLen);
-t = linspace(0,dataLen/Fs,dataLen);
+% these come from central device
 trialVars = {'doSham';'dominantFreq';'phaseAngle';'absoluteTime';'msToStim';'targetPhase'};
+
+doSave = false;
+Fs = 125; % Hz
+dataLen = numel(A) - numel(trialVars);
+t = linspace(0,dataLen/Fs,dataLen);
 for ii = 1:numel(trialVars)
-    trialVars{ii,2} = A(dataLen + ii);
+    trialVars{ii,2} = double(A(dataLen + ii));
 end
+data = A(1:dataLen);
+dataType = bitshift(bitand(data(1),uint32(0xFF000000)),-24);
+trialVars{size(trialVars,1)+1,1} = 'eegChannel';
+trialVars{size(trialVars,1),2} = dataType - 1;
+for iData = 1:numel(data)
+    data(iData) = bitand(data(iData),uint32(0x00FFFFFF));
+    if (bitget(data(iData),24) == 1) % apply sign
+        data(iData) = bitor(data(iData),uint32(0xFF000000));
+    end
+end
+data = double(typecast(data,'int32'));
 
 fs = 16;
 close all;
