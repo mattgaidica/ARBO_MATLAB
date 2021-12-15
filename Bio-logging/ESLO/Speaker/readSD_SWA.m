@@ -45,8 +45,22 @@ stimIdx = closest(t,max(t)/2+(trialVars{5,2}/1000));
 xline(t(stimIdx)+0.05,'r-','linewidth',20);
 text(t(stimIdx),max(ylim),'STIM\rightarrow','color','r','fontsize',fs,'verticalalignment','top','horizontalalignment','right');
 
+%%
+L = 2048*2; % this is a double-sided FFT, ESLO is one-sided
+fftData = double(data(1:round(dataLen/2)))';
+y = decimate(fftData,2); % also performed on ESLO
+Y = fft(fftData,L);
+P2 = abs(Y/3.6).^2; % this divisor was empirically found, don't know why it is required
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+close all
+figure;
+plot(P1);
+xlim([1 90]);
+%%
+
 subplot(212);
-[p,f] = pspectrum(double(data(1:round(dataLen/2))),Fs);
+[p,f] = pspectrum(fftData,Fs);
 [v,k] = max(p);
 plot(f,p,'k-','linewidth',2);
 hold on;
