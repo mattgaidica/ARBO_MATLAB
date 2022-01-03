@@ -58,14 +58,17 @@ for iEEG = 1:4
         dataIntervals.startTime(dataCount) = datetime(t1,'ConvertFrom','posixtime',...
             'Format','dd-MMM-yyyy HH:mm:ss','TimeZone','America/Detroit');
         dataIntervals.duration(dataCount) = numel(dataRange) / Fs;
-%         dataIntervals.dataRange(dataCount) = {dataRange};
+        dataIntervals.dataRange(dataCount) = {dataRange};
         dataIntervals.data(dataCount) = {data(dataRange)};
         
         % do axy extraction
+        useIdsX = XlX_ids > dataRange(1) & XlX_ids < dataRange(end);
+        useIdsY = XlY_ids > dataRange(1) & XlY_ids < dataRange(end);
+        useIdsZ = XlZ_ids > dataRange(1) & XlZ_ids < dataRange(end);
         xData = data(XlX_ids(XlX_ids > dataRange(1) & XlX_ids < dataRange(end)));
-        yData = data(XlY_ids(XlY_ids > dataRange(1) & XlY_ids < dataRange(end)));
-        zData = data(XlZ_ids(XlZ_ids > dataRange(1) & XlZ_ids < dataRange(end)));
-        dataIntervals.xl(dataCount) = {[xData',yData',zData']};
+        yData = data(XlX_ids(XlX_ids > dataRange(1) & XlX_ids < dataRange(end)));
+        xData = data(XlX_ids(XlX_ids > dataRange(1) & XlX_ids < dataRange(end)));
+        dataIntervals.xl(dataCount) = {xData,yData,zData};
     end
     warning ('on','all');
 end

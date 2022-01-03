@@ -1,7 +1,7 @@
 if do
     fname = '/Volumes/LEXAR633X/ESLORB2.TXT';
     [type,data,labels] = extractSD(fname);
-    do = 0;
+%     do = 0;
 end
 
 SDreport(type,labels);
