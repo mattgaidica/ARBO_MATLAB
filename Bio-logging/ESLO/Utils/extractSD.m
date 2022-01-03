@@ -32,8 +32,12 @@ for ii = 1:4:numel(A)
     thisData = bitor(thisData, bitshift(uint32(A(ii+1)),8));
     thisData = bitor(thisData, bitshift(uint32(A(ii+2)),16));
     
-    if (bitget(thisData,24) == 1) % apply sign
-        thisData = bitor(thisData,0xFF000000);
+    if thisType == 0x00 % time
+        thisData = bitor(thisData,0x61000000);
+    else
+        if (bitget(thisData,24) == 1) % apply sign
+            thisData = bitor(thisData,0xFF000000);
+        end
     end
     thisData = typecast(thisData,'int32');
     

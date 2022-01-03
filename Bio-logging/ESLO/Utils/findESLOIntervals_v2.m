@@ -46,9 +46,9 @@ for iEEG = 1:4
         dataRange = theseEEGids(onLocs(ii):offLocs(ii));
         t1Id = closest(timeIds,dataRange(1));
         % add 0x61000000 for unix/posix time !! may change based on deployment date
-        t1 = data(timeIds(t1Id)) + int32(0x61000000);
+        t1 = data(timeIds(t1Id));
         t2Id = closest(timeIds,dataRange(end));
-        t2 = data(timeIds(t2Id)) + int32(0x61000000);
+        t2 = data(timeIds(t2Id));
 
         dataIntervals.segment(dataCount) = ii;
         dataIntervals.type(dataCount) = useType;

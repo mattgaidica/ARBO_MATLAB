@@ -1,9 +1,16 @@
 % note: there is a lot of typing going on to play nice between C and MATLAB
 % i.e. keep values uint32 until adding sign and convert all to double after
-fname = '/Volumes/SWA_REC/00013.BIN';
+fname = '/Volumes/SWA_REC/00038.BIN';
 fid = fopen(fname);
 A = uint32(fread(fid,inf,'uint32'));
 fclose(fid);
+
+doSave = false;
+Fs = 125; % Hz
+dataLen = numel(A) - 7; % num of vars from base station
+t = linspace(0,dataLen/Fs,dataLen);
+data = A(1:dataLen);
+
 % these come from central device
 trialVars = {};
 trialVars.doSham        = double(A(dataLen + 1));
@@ -13,12 +20,6 @@ trialVars.trialCount    = double(A(dataLen + 4));
 trialVars.absoluteTime  = double(A(dataLen + 5));
 trialVars.msToStim      = double(A(dataLen + 6));
 trialVars.targetPhase   = double(A(dataLen + 7));
-
-doSave = false;
-Fs = 125; % Hz
-dataLen = numel(A) - numel(fieldnames(trialVars));
-t = linspace(0,dataLen/Fs,dataLen);
-data = A(1:dataLen);
 
 % add EEG Channel
 dataType = bitshift(bitand(data(1),uint32(0xFF000000)),-24);
@@ -54,8 +55,8 @@ xline(t(stimIdx)+0.05,'r-','linewidth',20);
 text(t(stimIdx),max(ylim),'STIM\rightarrow','color','r','fontsize',fs,'verticalalignment','top','horizontalalignment','right');
 
 %%
-% % % % L = 2048*2; % this is a double-sided FFT, ESLO is one-sided
-% % % % fftData = double(data(1:round(dataLen/2)))';
+L = 2048*2; % this is a double-sided FFT, ESLO is one-sided
+fftData = double(data(1:round(dataLen/2)))';
 % % % % y = decimate(fftData,2); % also performed on ESLO
 % % % % Y = fft(fftData,L);
 % % % % P2 = abs(Y/3.6).^2; % this divisor was empirically found, don't know why it is required

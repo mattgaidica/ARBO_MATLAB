@@ -8,8 +8,12 @@ SDreport(type,labels);
 dataIntervals = findESLOIntervals_v2(data,type,labels);
 
 %%
-Fs = 125;
 esloGain = 12;
+EEG = ADSgain(double(dataIntervals.data{1}),esloGain); % convert to uV
+
+%%
+Fs = 125;
+
 axyFs = 1;
 
 close all
