@@ -17,3 +17,5 @@ Sleep/WFDB
 Bio-logging/ESLO/iir-designer-cmsis-dsp/
 .DS_Store
 *.asv
+.DS_Store
+Bio-logging/.DS_Store
