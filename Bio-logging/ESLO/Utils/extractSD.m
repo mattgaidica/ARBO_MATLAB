@@ -11,7 +11,7 @@ fclose(fid);
 startSequence = 3:9; % find tail
 startPos = strfind(A',startSequence);
 if isempty(startPos)
-    error('no start found');
+    error('no start sequence found (part of UART dump), retry exporting...');
 end
 A = A(startPos+numel(startSequence):end,1);
 
