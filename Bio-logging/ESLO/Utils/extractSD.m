@@ -33,7 +33,7 @@ for ii = 1:4:numel(A)
     thisData = bitor(thisData, bitshift(uint32(A(ii+2)),16));
     
     if thisType == 0x00 % time
-        thisData = bitor(thisData,0x61000000);
+        thisData = bitor(thisData,0x62000000); % this needs to be 0x61 for early recs
     else
         if (bitget(thisData,24) == 1) % apply sign
             thisData = bitor(thisData,0xFF000000);
