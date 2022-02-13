@@ -11,13 +11,27 @@ esloGain = 12;
 cleanThresh = 300;
 Fs = 125;
 
+%% export SWA to file for testing with C code/CMSIS
+FLIMS = [0.5 30];
+startSample = round(50*Fs);
+trial1_EEG2_id = 7;
+EEG2 = double(dataIntervals.data{trial1_EEG2_id}); % raw data
+A = EEG2(startSample:startSample+512-1);
+[P,F] = pspectrum(A-mean(A),Fs);
+figure;
+plot(F,P);
+
+% fileID = fopen('FFTData.txt','w');
+% fprintf(fileID,'%6.2ff,\n',A);
+% fclose(fileID);
+
 %% sleep
 FLIMS = [1 30];
 climScale = 5;
 
 close all;
-trial1_EEG2_id = 7;
-trial1_EEG3_id = 55;
+trial1_EEG2_id = 10; % 7
+trial1_EEG3_id = trial1_EEG2_id + 48; % 55
 
 axyFs = 10;
 axy = dataIntervals.xl{trial1_EEG2_id};
@@ -28,6 +42,16 @@ EEG3 = cleanEEG(EEG3,cleanThresh);
 
 t_eeg = linspace(0,numel(EEG2)/Fs,numel(EEG2));
 t_axy = linspace(0,size(axy,1)/axyFs,size(axy,1));
+
+load('SOSG_LP4Hz.mat');
+EEG_SWA = filtfilt(SOS,G,EEG2);
+ff(1200,400);
+% plot(t_eeg,EEG2,'k');
+% hold on;
+plot(t_eeg,EEG_SWA,'k');
+[P,F,T] = pspectrum(EEG2,Fs,'spectrogram','FrequencyLimits',[0.5 4]);
+yyaxis right;
+plot(T,mean(P));
 
 ff(1200,900);
 ax1 = subplot(411);
@@ -76,31 +100,35 @@ FLIMS = [1 30];
 climScale = 10;
 
 close all;
-trial1_EEG2_id = 22;
-trial1_EEG3_id = 70;
-
-% trial1_EEG2_id = 23;
-% trial1_EEG3_id = 71;
+trial1_EEG2_id = 23; % trial 2: 23
+trial1_EEG3_id = trial1_EEG2_id+48;
 
 EEG2 = -ADSgain(double(dataIntervals.data{trial1_EEG2_id}),esloGain); % convert to uV
 EEG2 = detrend(EEG2);
 EEG3 = ADSgain(double(dataIntervals.data{trial1_EEG3_id}),esloGain); % convert to uV
 EEG3 = detrend(EEG3);
+axy = dataIntervals.xl{trial1_EEG2_id};
+OA = intervalOA(axy,axyFs);
 
 % in seconds
 unloadIntervals = [8 55;90 135;170 221;255 298];
 % unloadIntervals = [31 98; 140 222;260 298];
 
 t_eeg = linspace(0,numel(EEG2)/Fs,numel(EEG2));
+t_axy = linspace(0,size(axy,1)/axyFs,size(axy,1));
 
 ff(1200,900);
 ax1 = subplot(311);
 ln1 = plot(t_eeg,EEG2);
 hold on;
 ln2 = plot(t_eeg,EEG3);
-xlim([min(t_eeg) max(t_eeg)]);
 ylim([-200 200]);
 ylabel('uV');
+
+yyaxis right;
+plot(t_axy,OA);
+xlim([min(t_eeg) max(t_eeg)]);
+ylabel('Axy OA');
 xlabel('Time (s)');
 
 [P,F,T] = pspectrum(EEG2,Fs,'spectrogram','FrequencyLimits',FLIMS);
@@ -162,8 +190,8 @@ legend([ln1,ln2],{'EEG2','EEG3'});
 % % % % end
 
 load('loadData_R0001');
-FLIMS = [1 30];
-blockSize = 10; % sec
+FLIMS = [1 70];
+blockSize = 5; % sec
 blockSample = round(blockSize * Fs);
 
 buffer_EEG2 = [];
@@ -222,6 +250,75 @@ subplot(212);
 ln1 = plot(F,smoothdata(median(all_P_unloaded_EEG3),'gaussian',nSmooth),'r-','linewidth',2);
 hold on;
 ln2 = plot(F,smoothdata(median(all_P_loaded_EEG3),'gaussian',nSmooth),'k-','linewidth',2);
+xlim([min(F),max(F)]);
+xlabel('Freq. (Hz)');
+ylabel('Power (|Y|)');
+legend([ln1,ln2],{'Unloaded','Loaded'});
+title('EEG3');
+
+%% where are freqs sig diff?
+all_pvals = [];
+greaterCond = [];
+for iFreq = 1:size(all_P_unloaded_EEG2,2)
+    y = [all_P_unloaded_EEG2(:,iFreq)' all_P_loaded_EEG2(:,iFreq)'];
+    group = [zeros(1,size(all_P_unloaded_EEG2,1)) ones(1,size(all_P_loaded_EEG2,1))];
+    all_pvals(iFreq) = anova1(y,group,'off');
+    if mean(all_P_unloaded_EEG2(:,iFreq)) > mean(all_P_loaded_EEG2(:,iFreq))
+        greaterCond(iFreq) = 1;
+    else
+        greaterCond(iFreq) = 0;
+    end
+end
+
+alpha = 0.001;
+nSmooth = 1;
+
+close all;
+ff(1200,900);
+
+subplot(211);
+y = smoothdata(mean(all_P_unloaded_EEG2),'gaussian',nSmooth);
+ln1 = plot(F,y,'r-','linewidth',2);
+hold on;
+sigIds = find(all_pvals < alpha & greaterCond == 1);
+plot(F(sigIds),y(sigIds),'r*');
+
+y = smoothdata(mean(all_P_loaded_EEG2),'gaussian',nSmooth);
+ln2 = plot(F,y,'k-','linewidth',2);
+sigIds = find(all_pvals < alpha & greaterCond == 0);
+plot(F(sigIds),y(sigIds),'k*');
+
+xlim([min(F),max(F)]);
+xlabel('Freq. (Hz)');
+ylabel('Power (|Y|)');
+legend([ln1,ln2],{'Unloaded','Loaded'});
+title('EEG2');
+
+% EEG3
+all_pvals = [];
+greaterCond = [];
+for iFreq = 1:size(all_P_unloaded_EEG3,2)
+    y = [all_P_unloaded_EEG3(:,iFreq)' all_P_loaded_EEG3(:,iFreq)'];
+    group = [zeros(1,size(all_P_unloaded_EEG3,1)) ones(1,size(all_P_loaded_EEG3,1))];
+    all_pvals(iFreq) = anova1(y,group,'off');
+    if mean(all_P_unloaded_EEG3(:,iFreq)) > mean(all_P_loaded_EEG3(:,iFreq))
+        greaterCond(iFreq) = 1;
+    else
+        greaterCond(iFreq) = 0;
+    end
+end
+subplot(212);
+y = smoothdata(mean(all_P_unloaded_EEG3),'gaussian',nSmooth);
+ln1 = plot(F,y,'r-','linewidth',2);
+hold on;
+sigIds = find(all_pvals < alpha & greaterCond == 1);
+plot(F(sigIds),y(sigIds),'r*');
+
+y = smoothdata(mean(all_P_loaded_EEG3),'gaussian',nSmooth);
+ln2 = plot(F,y,'k-','linewidth',2);
+sigIds = find(all_pvals < alpha & greaterCond == 0);
+plot(F(sigIds),y(sigIds),'k*');
+
 xlim([min(F),max(F)]);
 xlabel('Freq. (Hz)');
 ylabel('Power (|Y|)');
