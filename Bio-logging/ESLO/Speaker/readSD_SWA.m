@@ -1,14 +1,16 @@
 % note: there is a lot of typing going on to play nice between C and MATLAB
 % i.e. keep values uint32 until adding sign and convert all to double after
 % fname = '/Volumes/SWA_REC/00038.BIN';
-% !! investigate 229-232, 346-349 (348 is likely K-complex)
+% 229-232, 346-349 (348 is likely K-complex)
+% 352-377 are no-axy trials
+Rat = 3;
 Fs = 125; % Hz
-doSave = false;
-fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials/00349.BIN';
+doSave = 0;
+fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials/00346.BIN';
 [trialVars,EEG,t] = extractSWATrial(fname,Fs);
 EEG = detrend(EEG);
 
-[EEG_SWA, bpdf] = bandpass(EEG, [0.5 4], 125); % can also: filtfilt(bpdf,EEG_SWA)
+[EEG_SWA, bpdf] = bandpass(EEG, [0.5 4], Fs); % can also: filtfilt(bpdf,EEG_SWA)
 fftData = EEG(1:round(numel(EEG)/2))';
 
 fs = 16;
@@ -51,7 +53,7 @@ text(t(stimIdx),max(ylim),'STIM\rightarrow','color','r','fontsize',fs,'verticala
 % % % % plot(P1);
 % % % % xlim([1 90]);
 
-FLIMS = [0.5 10];
+FLIMS = [0.5 4];
 subplot(212);
 padFFT = padarray(fftData,[0,numel(fftData)*10],0,'post');
 [p,f] = pspectrum(padFFT,Fs,'FrequencyLimits',FLIMS);
@@ -69,5 +71,5 @@ set(gca,'fontsize',fs-4);
 
 if doSave
     [~,name] = fileparts(fname);
-    saveas(gcf,"Trial" + name + ".png");
+    saveas(gcf,sprintf("R%04d_Trial%s.png",Rat,name));
 end
