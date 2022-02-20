@@ -26,11 +26,11 @@ plot(F,P);
 % fclose(fileID);
 
 %% sleep
-FLIMS = [1 30];
+FLIMS = [0.5 10];
 climScale = 5;
 
 close all;
-trial1_EEG2_id = 10; % 7
+trial1_EEG2_id = 11; % 7
 trial1_EEG3_id = trial1_EEG2_id + 48; % 55
 
 axyFs = 10;
@@ -43,8 +43,7 @@ EEG3 = cleanEEG(EEG3,cleanThresh);
 t_eeg = linspace(0,numel(EEG2)/Fs,numel(EEG2));
 t_axy = linspace(0,size(axy,1)/axyFs,size(axy,1));
 
-load('SOSG_LP4Hz.mat');
-EEG_SWA = filtfilt(SOS,G,EEG2);
+EEG_SWA = bandpass(EEG2,[0.5 4],Fs);
 ff(1200,400);
 % plot(t_eeg,EEG2,'k');
 % hold on;

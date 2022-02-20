@@ -1,3 +1,5 @@
+%% deprecated, moved to reviewSWATrials, this is only useful for fft padding code
+
 % note: there is a lot of typing going on to play nice between C and MATLAB
 % i.e. keep values uint32 until adding sign and convert all to double after
 % fname = '/Volumes/SWA_REC/00038.BIN';
@@ -6,11 +8,11 @@
 Rat = 3;
 Fs = 125; % Hz
 doSave = 0;
-fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials/00346.BIN';
+fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials/00362.BIN';
 [trialVars,EEG,t] = extractSWATrial(fname,Fs);
 EEG = detrend(EEG);
 
-[EEG_SWA, bpdf] = bandpass(EEG, [0.5 4], Fs); % can also: filtfilt(bpdf,EEG_SWA)
+[EEG_SWA, bpdf] = bandpass(EEG,[0.5 4],Fs); % can also: filtfilt(bpdf,EEG_SWA)
 fftData = EEG(1:round(numel(EEG)/2))';
 
 fs = 16;
