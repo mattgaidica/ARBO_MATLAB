@@ -2,7 +2,7 @@
 % review for algo: 358,368 looks mis-timed, 361,367 would be good for exclusion
 % criteria, 369 looks like higher power in lower freq, 
 Rat = 3;
-fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials/00243.BIN';
+fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials/00362.BIN';
 
 Fs = 125;
 writePath = '/Users/matt/Documents/Software/ESLO-Libraries/FFT';
@@ -16,14 +16,14 @@ fprintf(fileID,'%i,\n',EEG_detect(1:end-1));
 fprintf(fileID,'%i};\n',EEG_detect(end));
 fclose(fileID);
 
-CMSISFilter(0.5,4,Fs,EEG_detect,1)
+coeffs = CMSISFilter(0.5,4,Fs,EEG_detect,1);
 
 %%
 colors = jet(128);
 ff(1200,600);
 lns = [];
 for ii = 1:128
-    dataFilt = bandpass(EEG_detect,[0.8 12],Fs);
+    dataFilt = bandpass(EEG_detect,[1 20],Fs);
     [P,F] = pspectrum(dataFilt(ii:end),Fs);
     lns(ii) = plot(F,P,'-','color',colors(ii,:));
     hold on;

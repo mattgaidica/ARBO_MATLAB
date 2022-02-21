@@ -1,4 +1,4 @@
-function CMSISFilter(f1,f2,Fs,data,doPlot)
+function coeffs = CMSISFilter(f1,f2,Fs,data,doPlot)
 % from https://hackernoon.com/fast-iir-filtering-on-arm-cortex-m-with-cmsis-dsp-and-gnu-octave-qk1n3y66
 % order = requested_order/2;
 % fNyquist=fs/2;
@@ -6,11 +6,16 @@ function CMSISFilter(f1,f2,Fs,data,doPlot)
 
 % my own
 [dataFilt,bpd] = bandpass(data,[f1,f2],Fs);
-
+%% ^these data look fine, but not when converted to b,a then filtered
 [z,p,k] = zpk(bpd);
 sos = zp2sos(z,p,k);
+[b,a] = zp2tf(z,p,k);
+dataFilt = filter(b,a,data);
+
 % compute biquad coefficients
-coeffs = sos(:,[1 2 3 5 6]);
+coeffs = bpd.Coefficients(:,[1 2 3 5 6]);
+% coeffs = sos(:,[1 2 3 5 6]);
+
 % negate a1 and a2 coeffs (CMSIS expects them negated)
 coeffs(:,4) = -coeffs(:,4);
 coeffs(:,5) = -coeffs(:,5);
@@ -55,6 +60,6 @@ if doPlot
     xlabel('Freq. (Hz)');
     set(gca,'fontsize',14);
     legend({'Original','Filtered'});
-    title('Power Spectrum');
+    title('0.5-4Hz Filtered Power Spectrum');
     grid on;
 end
