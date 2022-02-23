@@ -2,14 +2,17 @@
 
 % note: there is a lot of typing going on to play nice between C and MATLAB
 % i.e. keep values uint32 until adding sign and convert all to double after
-% fname = '/Volumes/SWA_REC/00038.BIN';
+fname = '/Volumes/LEXAR633X/00011.BIN';
 % 229-232, 346-349 (348 is likely K-complex)
 % 352-377 are no-axy trials
 Rat = 3;
 Fs = 125; % Hz
 doSave = 0;
-fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials/00362.BIN';
+% fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials/00362.BIN';
 [trialVars,EEG,t] = extractSWATrial(fname,Fs);
+% artifactThresh = 1000;
+% EEG(abs(EEG) > artifactThresh) = NaN;
+% EEG = fillmissing(EEG,'spline');
 EEG = detrend(EEG);
 
 [EEG_SWA, bpdf] = bandpass(EEG,[0.5 4],Fs); % can also: filtfilt(bpdf,EEG_SWA)

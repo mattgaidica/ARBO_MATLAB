@@ -1,7 +1,7 @@
-function [type,data,labels] = extractSD(fname)
+function [type,data,labels] = extractSD(fname,varargin)
 % note: type is 0-indexed, labels in MATLAB will be 1-indexed
 labels(:,2) = ["AbsoluteTime";"RelativeTime";"EEG1";"EEG2";"EEG3";"EEG4";"BatteryVoltage";...
-    "XlX";"XlY";"XlZ";"EEGState";"NotUsed1";"NotUsed2";"Temperature";"Error";"Version"];
+    "XlX";"XlY";"XlZ";"EEGState";"SWATrial";"NotUsed2";"Temperature";"Error";"Version"];
 labels(:,1) = 0:size(labels,1)-1;
 
 fid = fopen(fname);
@@ -54,5 +54,9 @@ for ii = 1:4:numel(A)
     type(sampleCount) = thisType;
     data(sampleCount) = thisData;
     sampleCount = sampleCount + 1;
+    if ~isempty(varargin) && sampleCount > varargin{1}
+        fprintf('BREAKING, max sample = %i\n',varargin{1});
+        break;
+    end
 end
 % end

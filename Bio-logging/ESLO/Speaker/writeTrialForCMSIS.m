@@ -18,14 +18,14 @@ fclose(fileID);
 
 coeffs = CMSISFilter(0.5,4,Fs,EEG_detect,1);
 
-%%
+%% how does tail end power compare to full?
 colors = jet(128);
 ff(1200,600);
 lns = [];
-for ii = 1:128
+for ii = 1:16:128
     dataFilt = bandpass(EEG_detect,[1 20],Fs);
     [P,F] = pspectrum(dataFilt(ii:end),Fs);
-    lns(ii) = plot(F,P,'-','color',colors(ii,:));
+    lns(ii) = plot(F,P,'-','color',colors(ii,:),'linewidth',2);
     hold on;
 end
 legend([lns(1) lns(end)],{'full 2s','last 1s'});

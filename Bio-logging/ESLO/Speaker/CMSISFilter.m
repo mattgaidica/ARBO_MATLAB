@@ -7,10 +7,10 @@ function coeffs = CMSISFilter(f1,f2,Fs,data,doPlot)
 % my own
 [dataFilt,bpd] = bandpass(data,[f1,f2],Fs);
 %% ^these data look fine, but not when converted to b,a then filtered
-[z,p,k] = zpk(bpd);
-sos = zp2sos(z,p,k);
-[b,a] = zp2tf(z,p,k);
-dataFilt = filter(b,a,data);
+% [z,p,k] = zpk(bpd);
+% sos = zp2sos(z,p,k);
+% [b,a] = zp2tf(z,p,k);
+% dataFilt = filter(b,a,data);
 
 % compute biquad coefficients
 coeffs = bpd.Coefficients(:,[1 2 3 5 6]);

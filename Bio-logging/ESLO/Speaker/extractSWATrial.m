@@ -1,6 +1,5 @@
 function [trialVars,EEG,t,rawEEG] = extractSWATrial(fname,Fs)
 esloGain = 12;
-artifactThresh = 1000;
 
 fid = fopen(fname);
 A = uint32(fread(fid,inf,'uint32'));
@@ -34,5 +33,4 @@ rawEEG = double(typecast(rawEEG,'int32'));
 % post-process
 EEG = ADSgain(rawEEG,esloGain);
 EEG(EEG==0) = NaN;
-EEG(abs(EEG) > artifactThresh) = NaN;
 EEG = fillmissing(EEG,'spline');
