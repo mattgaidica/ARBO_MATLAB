@@ -24,71 +24,68 @@ for iPlot = 1:numel(useTypes)
     title(labels(dataType+1,2));
     xlim([1 numel(x)]);
 end
-%% SWA ratio playground
-% find a good interval
-FLIMS = [1 12];
-trial1_EEG2_id = 6;
+%% data review
+close all;
+ff(1200,800);
 
-axyFs = 10;
-axy = dataIntervals.xl{trial1_EEG2_id};
-EEG2 = ADSgain(double(dataIntervals.data{trial1_EEG2_id}),esloGain); % convert to uV
-EEG2 = detrend(EEG2);
+subplot(311);
+t_vitals = (1:sum(type==6))/60/24;
+plot(t_vitals,double(data(type==6)),'k-');
+ylabel('Battery (V)');
 
-t_eeg = linspace(0,numel(EEG2)/Fs,numel(EEG2));
-t_axy = linspace(0,size(axy,1)/axyFs,size(axy,1));
+yyaxis right;
+t_vitals = (1:sum(type==13))/60/24;
+plot(t_vitals,double(data(type==13))/1000,'r-');
+set(gca,'ycolor','r');
+ylabel('Temp (C)');
 
-EEG_SWA = bandpass(EEG2,[0.5 4],Fs);
+xlim([min(t_vitals) max(t_vitals)]);
+xlabel('Time (days)');
+title('Device Vitals (1 sample/minute)');
+set(gca,'fontsize',16);
+grid on;
 
-% close all;
-ff(1200,900);
-ax1 = subplot(411);
-for ii = 1:3
-    plot(t_axy,axy(:,ii));
-    hold on;
+trial1_EEG2_id = 33; % 7
+all_2 = [];
+all_3 = [];
+all_axy = [];
+for trial1_EEG2_id = 1:33
+    trial1_EEG3_id = trial1_EEG2_id + 33; % 55
+
+    axyFs = 10;
+    axy = dataIntervals.xl{trial1_EEG2_id};
+    EEG2 = ADSgain(double(dataIntervals.data{trial1_EEG2_id}),esloGain); % convert to uV
+    EEG2 = cleanEEG(EEG2,cleanThresh);
+    EEG3 = ADSgain(double(dataIntervals.data{trial1_EEG3_id}),esloGain); % convert to uV
+    EEG3 = cleanEEG(EEG3,cleanThresh);
+    all_2 = [all_2 EEG2];
+    all_3 = [all_3 EEG3];
+    all_axy = [all_axy;axy];
 end
+t_eeg = linspace(0,numel(all_2)/Fs,numel(all_2))/60/60;
+t_axy = linspace(0,size(all_axy,1)/axyFs,size(all_axy,1))/60/60;
+
+subplot(312);
+plot(t_axy,all_axy);
 xlim([min(t_axy) max(t_axy)]);
-ylabel('Axy');
-xlabel('Time (s)');
+xlabel('Time (hrs)');
+title(sprintf('Accelerometer (n=%i intervals)',trial1_EEG2_id));
+set(gca,'fontsize',16);
+legend({'X','Y','Z'});
+grid on;
+ylabel('2g raw data');
 
-ax2 = subplot(412);
-ln1 = plot(t_eeg,EEG2,'k');
+colors = lines(2);
+op = 0.2;
+subplot(313);
+plot(t_eeg,all_2,'color',[colors(1,:) op]);
 hold on;
-plot(t_eeg,EEG_SWA,'r-');
-xlim([min(t_eeg) max(t_eeg)]);
+plot(t_eeg,all_3,'color',[colors(2,:) op]);
 ylim([-200 200]);
-ylabel('uV');
-xlabel('Time (s)');
-
-[P,F,T] = pspectrum(EEG2,Fs,'spectrogram','FrequencyLimits',FLIMS);
-ax3 = subplot(413);
-imagesc(t_eeg,F,P);
-set(gca,'ydir','normal');
-colormap(magma);
-caxisauto(P);
-title('EEG2');
-xlabel('Time (s)');
-ylabel('Freq (Hz)');
-hold on;
-
-ratioF = [0.5,4];
-windowSamples = Fs;
-ratioArr = NaN(size(EEG2));
-M = movstd(double(axy(:,1)),10); % isMoving
-for ii = 1:numel(EEG2)
-    useRange = ii-windowSamples:ii+windowSamples-1;
-    if ii > windowSamples && ii < numel(EEG2) - windowSamples
-        axyRange = find(t_axy >= t_eeg(min(useRange))-5 & t_axy < t_eeg(max(useRange))+5);
-        if all(M(axyRange) < 190)
-            theseData = EEG2(useRange);
-            [P,F] = pspectrum(theseData,Fs);
-            lowerPower = mean(P(F >= ratioF(1,1) & F < ratioF(1,2)));
-            upperPower = mean(P(F > ratioF(1,2)));
-            ratioArr(ii) = lowerPower / upperPower;
-        end
-    end
-end
-ax4 = subplot(414);
-plot(t_eeg,ratioArr,'k');
-ylim([0 100]);
-
-linkaxes([ax1 ax2 ax3 ax4],'x');
+xlim([min(t_eeg) max(t_eeg)]);
+xlabel('Time (hrs)');
+title(sprintf('Electrophysiology (n=%i intervals)',trial1_EEG2_id));
+set(gca,'fontsize',16);
+legend({'EEG2','EEG3'});
+ylabel('\muV');
+grid on;

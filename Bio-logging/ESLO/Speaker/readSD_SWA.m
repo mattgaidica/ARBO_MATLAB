@@ -2,7 +2,7 @@
 
 % note: there is a lot of typing going on to play nice between C and MATLAB
 % i.e. keep values uint32 until adding sign and convert all to double after
-fname = '/Volumes/LEXAR633X/00011.BIN';
+fname = '/Volumes/LEXAR633X/00008.BIN';
 % 229-232, 346-349 (348 is likely K-complex)
 % 352-377 are no-axy trials
 Rat = 3;
