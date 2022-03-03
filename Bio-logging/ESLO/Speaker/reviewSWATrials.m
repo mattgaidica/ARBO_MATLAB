@@ -1,5 +1,5 @@
-doPlot = 0;
-rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials';
+doPlot = 1;
+rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0004/SWA Trials/TryFail5';
 [file,path] = uigetfile(fullfile(rootPath,'*.BIN'),'MultiSelect','on');
 if ~iscell(file)
     file = {file}; % always cell for loop
@@ -11,6 +11,7 @@ all_Sham = [];
 all_Trials = [];
 all_EEG = [];
 all_EEG_filt = [];
+all_msToStim = [];
 for iFile = 1:numel(file)
     fname = fullfile(rootPath,file{iFile});
     [trialVars,EEG,t] = extractSWATrial(fname,Fs);
@@ -18,8 +19,9 @@ for iFile = 1:numel(file)
     all_Phase(iFile) = trialVars.phaseAngle / 1000;
     all_Sham(iFile) = trialVars.doSham;
     all_Trials(iFile) = trialVars.trialCount;
-    all_EEG(iFile,:) = EEG;
+    all_EEG(iFile,:) = detrend(EEG);
     all_EEG_filt(iFile,:) = bandpass(EEG,[0.5 4],Fs);
+    all_msToStim(iFile,:) = trialVars.msToStim;
     if doPlot
         fs = 16;
         h = ff(1200,500);
@@ -44,14 +46,29 @@ for iFile = 1:numel(file)
         text(max(t)/2,min(ylim),'DETECT\rightarrow','color','r','fontsize',fs,'verticalalignment','bottom','horizontalalignment','right');
         set(gca,'fontsize',fs-2);
         stimIdx = closest(t,max(t)/2+(trialVars.msToStim/1000));
-        xline(t(stimIdx)+0.05,'r-','linewidth',20,'alpha',0.2);
-        text(t(stimIdx),max(ylim),'STIM\rightarrow','color','r','fontsize',fs,'verticalalignment','top','horizontalalignment','right');
+        if trialVars.doSham == 0
+            xline(t(stimIdx)+0.05,'r-','linewidth',20,'alpha',0.2);
+            text(t(stimIdx),max(ylim),'STIM\rightarrow','color','r','fontsize',fs,'verticalalignment','top','horizontalalignment','right');
+        else
+            xline(t(stimIdx)+0.05,'k-','linewidth',20,'alpha',0.2);
+            text(t(stimIdx),max(ylim),'STIM\rightarrow','color','k','fontsize',fs,'verticalalignment','top','horizontalalignment','right');
+        end
         
         saveas(h,sprintf("%s.png",fname));
         close(h);
     end
 end
+chime
 %% stim vs. sham ephys
+% pre-process for stim time
+periStimEEG = [];
+windowSamples = 125;
+stimDuration = 50; % ms
+for iTrial = 1:size(all_EEG,1)
+    stimIdx = closest(t,max(t)/2+((all_msToStim(iTrial)+(stimDuration/2))/1000));
+    periStimEEG(iTrial,:) = all_EEG(iTrial,stimIdx-windowSamples+1:stimIdx+windowSamples);
+end
+t_peri = linspace(0,size(periStimEEG,2)/125,size(periStimEEG,2));
 op = 0.2;
 lw = 2;
 colors = [1,0,0;0,0,0];
@@ -59,17 +76,17 @@ close all
 ff(1200,400);
 lns = [];
 for iSham = 0:1
-    plot_distribution(t,all_EEG_filt(all_Sham==iSham,:),'Color',colors(iSham+1,:),'Alpha',op,'LineWidth',lw);
+    plot_distribution(t_peri,periStimEEG(all_Sham==iSham,:),'Color',colors(iSham+1,:),'Alpha',op,'LineWidth',lw);
     hold on;
-    lns(iSham+1) = plot([0,0],[max(ylim) max(ylim)]*2,'color',colors(iSham+1,:),'linewidth',lw);
+    lns(iSham+1) = plot([0,0],[max(ylim) max(ylim)]*2,'color',colors(iSham+1,:),'linewidth',lw); % for legend
 end
-xline(max(t)/2,'k:');
-xlim([min(t),max(t)]);
-xticks([0,max(t)/2,max(t)]);
+xline(max(t_peri)/2,'k:');
+xlim([min(t_peri),max(t_peri)]);
+xticks([-max(t_peri)/2,0,max(t_peri)/2]);
 ylabel('uV');
-ylim([-50 50]);
+ylim([-100 100]);
 xlabel('Time (s)');
-text(max(t)/2,max(ylim)-5,'\leftarrowSTIM');
+text(max(t_peri)/2,max(ylim)-5,'\leftarrowSTIM');
 title('SWA Peri-stim');
 grid on;
 set(gca,'fontsize',14);
