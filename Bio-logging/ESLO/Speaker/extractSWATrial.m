@@ -32,5 +32,5 @@ end
 rawEEG = double(typecast(rawEEG,'int32'));
 % post-process
 EEG = ADSgain(rawEEG,esloGain);
-EEG(EEG==0) = NaN;
-EEG = fillmissing(EEG,'spline');
+% EEG(EEG==0) = NaN;
+% EEG = fillmissing(EEG,'spline');

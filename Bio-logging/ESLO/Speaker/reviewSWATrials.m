@@ -1,5 +1,5 @@
 doPlot = 1;
-rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0004/SWA Trials/TryFail5';
+rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0004/SWA Trials/TryNoFail7';
 [file,path] = uigetfile(fullfile(rootPath,'*.BIN'),'MultiSelect','on');
 if ~iscell(file)
     file = {file}; % always cell for loop
@@ -12,16 +12,22 @@ all_Trials = [];
 all_EEG = [];
 all_EEG_filt = [];
 all_msToStim = [];
+fileCount = 0;
 for iFile = 1:numel(file)
     fname = fullfile(rootPath,file{iFile});
     [trialVars,EEG,t] = extractSWATrial(fname,Fs);
-    all_Freq(iFile) = trialVars.dominantFreq / 1000;
-    all_Phase(iFile) = trialVars.phaseAngle / 1000;
-    all_Sham(iFile) = trialVars.doSham;
-    all_Trials(iFile) = trialVars.trialCount;
-    all_EEG(iFile,:) = detrend(EEG);
-    all_EEG_filt(iFile,:) = bandpass(EEG,[0.5 4],Fs);
-    all_msToStim(iFile,:) = trialVars.msToStim;
+    if trialVars.msToStim > 5000 || any(abs(normalize(EEG)) > 15)
+        fprintf('Outlying trial file %i, trial %i\n',iFile,trialVars.trialCount);
+        continue;
+    end
+    fileCount = fileCount + 1;
+    all_Freq(fileCount) = trialVars.dominantFreq / 1000;
+    all_Phase(fileCount) = trialVars.phaseAngle / 1000;
+    all_Sham(fileCount) = trialVars.doSham;
+    all_Trials(fileCount) = trialVars.trialCount;
+    all_EEG(fileCount,:) = detrend(EEG);
+    all_EEG_filt(fileCount,:) = bandpass(EEG,[0.5 4],Fs);
+    all_msToStim(fileCount,:) = trialVars.msToStim;
     if doPlot
         fs = 16;
         h = ff(1200,500);
@@ -29,7 +35,7 @@ for iFile = 1:numel(file)
         ylabel('Raw (uV)');
         
         yyaxis right;
-        plot(t,all_EEG_filt(iFile,:),'r-');
+        plot(t,all_EEG_filt(fileCount,:),'r-');
         set(gca,'ycolor','r');
         ylabel('SWA (uV)');
         
@@ -62,7 +68,7 @@ chime
 %% stim vs. sham ephys
 % pre-process for stim time
 periStimEEG = [];
-windowSamples = 125;
+windowSamples = 100;
 stimDuration = 50; % ms
 for iTrial = 1:size(all_EEG,1)
     stimIdx = closest(t,max(t)/2+((all_msToStim(iTrial)+(stimDuration/2))/1000));
@@ -75,7 +81,7 @@ colors = [1,0,0;0,0,0];
 close all
 ff(1200,400);
 lns = [];
-for iSham = 0:1
+for iSham = 0%:1
     plot_distribution(t_peri,periStimEEG(all_Sham==iSham,:),'Color',colors(iSham+1,:),'Alpha',op,'LineWidth',lw);
     hold on;
     lns(iSham+1) = plot([0,0],[max(ylim) max(ylim)]*2,'color',colors(iSham+1,:),'linewidth',lw); % for legend

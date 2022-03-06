@@ -1,19 +1,19 @@
-usePath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0004/SWA Trials/20220303';
-trialsPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0004/SWA Trials/Trials';
+videoPath = '/Volumes/GAIDICASSD/Database/R0004/Videos/20220304';
+trialsPath = '/Volumes/GAIDICASSD/Database/R0004/Videos/20220304/Trials';
 if ~isdir(trialsPath)
     mkdir(trialsPath)
 end
 
-files = dir2(usePath,'-r');
+files = dir2(videoPath,'-r');
 [path,name,ext] = fileparts({files.name});
 elimIds = find(contains(name,'.') | strcmp(name,'') | [files.isdir]);
 files(elimIds) = [];
-
-%% select LED location
-startSearch = 52; % set to 1 unless known video
+%%
+% select LED location
+startSearch = 12; % set to 1 unless known video
 pos = [0,0,0,0];
 for startFile = startSearch:numel(files)
-    v = VideoReader(fullfile(usePath,files(startFile).name));
+    v = VideoReader(fullfile(videoPath,files(startFile).name));
     frame = readFrame(v);
 
     close all;
@@ -33,8 +33,8 @@ minDist = 100; % frames, ~5s
 grabSec = 5;
 Trials = table;
 trialCount = 0;
-for iFile = 52%startFile:numel(files)
-    fp = fullfile(usePath,files(iFile).name);
+for iFile = startFile:numel(files)
+    fp = fullfile(videoPath,files(iFile).name);
     v = VideoReader(fp);
     stimGreen = [];
     stimRed = [];
