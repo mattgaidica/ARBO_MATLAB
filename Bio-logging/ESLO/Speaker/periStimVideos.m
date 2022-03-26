@@ -1,5 +1,5 @@
-videoPath = '/Volumes/GAIDICASSD/Database/R0004/Videos/20220304';
-trialsPath = '/Volumes/GAIDICASSD/Database/R0004/Videos/20220304/Trials';
+videoPath = '/Volumes/GAIDICASSD/Database/R0005/Videos/20220325';
+trialsPath = fullfile(videoPath,'Trials');
 if ~isdir(trialsPath)
     mkdir(trialsPath)
 end
@@ -10,7 +10,7 @@ elimIds = find(contains(name,'.') | strcmp(name,'') | [files.isdir]);
 files(elimIds) = [];
 %%
 % select LED location
-startSearch = 12; % set to 1 unless known video
+startSearch = 9; % set to 1 unless known video
 pos = [0,0,0,0];
 for startFile = startSearch:numel(files)
     v = VideoReader(fullfile(videoPath,files(startFile).name));
@@ -26,7 +26,6 @@ for startFile = startSearch:numel(files)
 end
 close all;
 
-%%
 clc
 minPeak = 20; % Z-score intensity
 minDist = 100; % frames, ~5s

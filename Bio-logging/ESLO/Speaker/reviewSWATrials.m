@@ -1,5 +1,5 @@
 doPlot = 1;
-rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0004/SWA Trials/TryNoFail7';
+rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0005/SWA Trials';
 [file,path] = uigetfile(fullfile(rootPath,'*.BIN'),'MultiSelect','on');
 if ~iscell(file)
     file = {file}; % always cell for loop
@@ -16,7 +16,7 @@ fileCount = 0;
 for iFile = 1:numel(file)
     fname = fullfile(rootPath,file{iFile});
     [trialVars,EEG,t] = extractSWATrial(fname,Fs);
-    if trialVars.msToStim > 5000 || any(abs(normalize(EEG)) > 15)
+    if trialVars.msToStim > 5000 || any(abs(normalize(EEG)) > 50)
         fprintf('Outlying trial file %i, trial %i\n',iFile,trialVars.trialCount);
         continue;
     end
