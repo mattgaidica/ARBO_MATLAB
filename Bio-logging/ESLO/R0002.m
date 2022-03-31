@@ -10,6 +10,7 @@ end
 esloGain = 12;
 cleanThresh = 300;
 Fs = 125;
+axyFs = 10;
 
 %% export SWA to file for testing with C code/CMSIS
 FLIMS = [0.5 30];
@@ -33,7 +34,6 @@ close all;
 trial1_EEG2_id = 11; % 7
 trial1_EEG3_id = trial1_EEG2_id + 48; % 55
 
-axyFs = 10;
 axy = dataIntervals.xl{trial1_EEG2_id};
 EEG2 = -ADSgain(double(dataIntervals.data{trial1_EEG2_id}),esloGain); % convert to uV
 EEG2 = cleanEEG(EEG2,cleanThresh);
@@ -318,35 +318,6 @@ ln2 = plot(F,y,'k-','linewidth',2);
 sigIds = find(all_pvals < alpha & greaterCond == 0);
 plot(F(sigIds),y(sigIds),'k*');
 
-xlim([min(F),max(F)]);
-xlabel('Freq. (Hz)');
-ylabel('Power (|Y|)');
-legend([ln1,ln2],{'Unloaded','Loaded'});
-title('EEG3');
-
-%%
-nSmooth = 60;
-FLIMS = [1 30];
-close all;
-ff(800,500);
-subplot(211);
-[P,F] = pspectrum(unloadedData_EEG2,Fs,'FrequencyLimits',FLIMS);
-ln1 = plot(F,smoothdata(P,'gaussian',nSmooth),'r-','linewidth',2);
-hold on;
-[P,F] = pspectrum(loadedData_EEG2,Fs,'FrequencyLimits',FLIMS);
-ln2 = plot(F,smoothdata(P,'gaussian',nSmooth),'k-','linewidth',2);
-xlim([min(F),max(F)]);
-xlabel('Freq. (Hz)');
-ylabel('Power (|Y|)');
-legend([ln1,ln2],{'Unloaded','Loaded'});
-title('EEG2');
-
-subplot(212);
-[P,F] = pspectrum(unloadedData_EEG3,Fs,'FrequencyLimits',FLIMS);
-ln1 = plot(F,smoothdata(P,'gaussian',nSmooth),'r-','linewidth',2);
-hold on;
-[P,F] = pspectrum(loadedData_EEG3,Fs,'FrequencyLimits',FLIMS);
-ln2 = plot(F,smoothdata(P,'gaussian',nSmooth),'k-','linewidth',2);
 xlim([min(F),max(F)]);
 xlabel('Freq. (Hz)');
 ylabel('Power (|Y|)');
