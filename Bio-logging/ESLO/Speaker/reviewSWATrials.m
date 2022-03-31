@@ -1,4 +1,4 @@
-doPlot = 1;
+doPlot = 0;
 rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0005/SWA Trials';
 [file,path] = uigetfile(fullfile(rootPath,'*.BIN'),'MultiSelect','on');
 if ~iscell(file)
@@ -64,7 +64,6 @@ for iFile = 1:numel(file)
         close(h);
     end
 end
-chime
 %% stim vs. sham ephys
 % pre-process for stim time
 periStimEEG = [];
@@ -100,25 +99,27 @@ legend(lns,{sprintf('Stim (n=%i)',sum(all_Sham==0)),sprintf('Sham (n=%i)',sum(al
 
 %% freq, phase, and sham by trials (overview)
 [all_Trials,k] = sort(all_Trials);
-labelSpace = round(linspace(1,numel(all_Trials),min([numel(all_Trials),100])));
+labelSpace = round(linspace(1,numel(all_Trials),min([numel(all_Trials),25])));
 labelTrials = all_Trials(labelSpace);
 tTrials = 1:numel(all_Trials);
 fCut = 0.7;
 rows = 3;
 cols = 5;
+colX = 0.97;
 close all;
 lw = 1.5;
 ms = 20;
-fs = 12;
-ff(1200,800);
-subplot(rows,cols,[1:4]);
-blackTrials = find(all_Freq(k) >= fCut);
+fs = 14;
+ff(800,500);
+
+subplot(rows,cols,1:4);
+blackTrials = find(all_Sham==0);
 plot(tTrials(blackTrials),all_Freq(k(blackTrials)),'k.','linewidth',lw,'markersize',ms);
 hold on;
-redTrials = find(all_Freq(k) < fCut);
+redTrials = find(all_Sham);
 plot(tTrials(redTrials),all_Freq(k(redTrials)),'r.','linewidth',lw,'markersize',ms);
 ylabel('Freq (Hz)');
-xlabel('Trial');
+% % xlabel('Trial');
 xticks(labelSpace);
 xtickangle(-90);
 xticklabels(compose('%4d',labelTrials));
@@ -126,44 +127,52 @@ xlim([min(tTrials) max(tTrials)]);
 grid on;
 title('SWA Trials');
 set(gca,'fontsize',fs);
+pos = get(gca,'Position');
+set(gca,'Position',pos.*[1 1 colX 1]);
 
 subplot(rows,cols,5);
 fHistBins = 0:.1:4;
 histogram(all_Freq(k(blackTrials)),fHistBins,'facecolor','k');
 hold on;
 histogram(all_Freq(k(redTrials)),fHistBins,'facecolor','r');
-ylabel('# Trials');
-xlabel('Freq (Hz)');
+% ylabel('# Trials');
+xlabel('F_{center} (Hz)');
+xticks(0:4);
 set(gca,'fontsize',fs);
 set(gca,'view',[90 -90]);
+yticks(ylim);
 grid on;
 
-subplot(rows,cols,[6:9]);
+subplot(rows,cols,6:9);
 plot(tTrials(blackTrials),all_Phase(k(blackTrials)),'k.','linewidth',lw,'markersize',ms);
 hold on;
 plot(tTrials(redTrials),all_Phase(k(redTrials)),'r.','linewidth',lw,'markersize',ms);
 ylim([0 360]);
 ylabel('Phase (Degrees)');
-xlabel('Trial');
+% % xlabel('Trial');
 xticks(labelSpace);
 xtickangle(-90);
 xticklabels(compose('%4d',labelTrials));
 xlim([min(tTrials) max(tTrials)]);
 grid on;
 set(gca,'fontsize',fs);
+pos = get(gca,'Position');
+set(gca,'Position',pos.*[1 1 colX 1]);
 
 subplot(rows,cols,10);
 pHistBins = 0:30:360;
 histogram(all_Phase(k(blackTrials)),pHistBins,'facecolor','k');
 hold on;
 histogram(all_Phase(k(redTrials)),pHistBins,'facecolor','r');
-ylabel('# Trials');
-xlabel('Phase (Degrees)');
+% ylabel('# Trials');
+xticks(0:90:360);
+xlabel('Phase °');
 set(gca,'fontsize',fs);
 set(gca,'view',[90 -90]);
+yticks(ylim);
 grid on;
 
-subplot(rows,cols,[11:14]);
+subplot(rows,cols,11:14);
 plot(tTrials(blackTrials),all_Sham(k(blackTrials)),'kx','linewidth',lw,'markersize',ms);
 hold on;
 plot(tTrials(redTrials),all_Sham(k(redTrials)),'rx','linewidth',lw,'markersize',ms);
@@ -178,6 +187,8 @@ xticklabels(compose('%4d',labelTrials));
 xlim([min(tTrials) max(tTrials)]);
 grid on;
 set(gca,'fontsize',fs);
+pos = get(gca,'Position');
+set(gca,'Position',pos.*[1 1 colX 1]);
 
 subplot(rows,cols,15);
 sHistBins = -0.5:1.5;
@@ -189,4 +200,5 @@ xticks([0 1]);
 xticklabels({'No','Yes'});
 set(gca,'fontsize',fs);
 set(gca,'view',[90 -90]);
+yticks(ylim);
 grid on;
