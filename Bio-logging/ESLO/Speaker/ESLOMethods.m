@@ -1,3 +1,5 @@
+%% 
+cd '/Users/matt/Documents/MATLAB/ARBO/Bio-logging/ESLO/Speaker';
 Fs = 125;
 fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials Selected/00231.BIN';
 [trialVars,EEG,t] = extractSWATrial(fname,Fs);
@@ -11,7 +13,9 @@ endStim = stimIdx + round(0.05/diff(t(1:2)));
 midStim = closest(t,max(t)/2+(Ms+25)/1000);
 midPoint = round(numel(t)/2);
 EEG_cos = [flip(cos(-t(2:midPoint) * (2*pi*Fc) + deg2rad(Fp))) cos(t(1:midPoint+1) * (2*pi*Fc) + deg2rad(Fp))];
+t = linspace(-2,2,numel(EEG)); % just use even numbers
 
+fs = 14;
 EEG_filt = bandpass(EEG,[0.5 4],Fs);
 close all;
 ff(600,250);
@@ -39,7 +43,7 @@ y = [min(ylim) min(ylim) max(ylim) max(ylim)];
 patch('XData',x,'YData',y,'FaceColor','red','EdgeColor','none','FaceColor',colors(5,:),'FaceAlpha',0.5);
 
 xlim([min(t), max(t)]);
-xticks(min(t):max(t)/8:max(t));
+xticks(min(t):max(t)/4:max(t));
 grid on;
 xlabel('Time (s)');
 xline(t(midPoint),'k-');
@@ -56,6 +60,8 @@ title('SW Detection and Stimulus');
 % end
 
 %% squirrel sleep
+cd '/Users/matt/Documents/MATLAB/ARBO/Bio-logging/ESLO';
+doSave = 1;
 if do
     fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/S0006_0200/ESLORB2.TXT';
     [type,data,labels] = extractSD(fname,Inf,datetime(2021,8,13));
@@ -67,11 +73,9 @@ end
 
 Fs = 50;
 axyFs = 1;
-useBoutDuration = 30; % seconds
 startHour = 20;
 showHours = 8;
 esloGain = 12;
-
 
 iSegment = 4;
 xRow = find(dataIntervals.segment == iSegment & dataIntervals.type == ESLOType("XlX",labels));
@@ -85,7 +89,7 @@ OA = axyOA(x,y,z,axyFs);
 EEG_row = find(dataIntervals.segment == iSegment & dataIntervals.type == ESLOType("EEG2",labels));
 EEG = double(data(dataIntervals.range{EEG_row}));
 EEG = ADSgain(EEG,esloGain); % convert to uV
-% EEG = cleanEEG(EEG,250); % clean at 300uV
+EEG = cleanEEG(EEG,300); % clean at 300uV
 
 % data is loaded, trim recording
 secondsOffset = startHour*60*60 - (hour(dataIntervals.time(EEG_row))*60*60 ...
@@ -94,11 +98,14 @@ sampleOffset = round(secondsOffset * Fs);
 if sampleOffset < 1
     sampleOffset = 1;
 end
-sampleRange = sampleOffset:sampleOffset+showHours*60*60*Fs;
+sampleRange = sampleOffset:sampleOffset+showHours*3600*Fs;
 if sampleRange > numel(EEG)
     error('showHours out of range');
 end
 EEG = detrend(EEG(sampleRange));
+x = x(secondsOffset:secondsOffset+showHours*3600*axyFs);
+y = y(secondsOffset:secondsOffset+showHours*3600*axyFs);
+z = z(secondsOffset:secondsOffset+showHours*3600*axyFs);
 
 t_EEG = linspace(0,numel(EEG)/Fs/3600,numel(EEG));
 t_axy = linspace(0,numel(EEG)/Fs/3600,numel(x));
@@ -111,8 +118,8 @@ rows = 3;
 cols = 2;
 ff(800,600);
 
-t_sleep = 1.6886;
-t_wake = 6.584;
+t_sleep = 2.2003;
+t_wake = 6.3818;
 t_int = 10/3600; % 10 seconds
 
 iPlotTitles = {'Overnight EEG and Accelerometer (Axy) Data','Sleep','Wake'};
@@ -196,9 +203,14 @@ text(min(xlim),max(ylim),' 8PM','fontsize',fs,'verticalalignment','top','color',
 text(t_sleep,max(ylim),'\downarrowSleep','fontsize',fs,'verticalalignment','top','color','w');
 text(t_wake,max(ylim),'\downarrowWake','fontsize',fs,'verticalalignment','top','color','w');
 
-% if doSave
+if doSave
 %     print(gcf,'-painters','-depsc',fullfile(exportPath,'QBTransitions.eps')); % required for vector lines
+    [xs,ys] = ginput(3);
+    fs = 28;
+    text(xs(1),ys(1),'A','fontsize',fs);
+    text(xs(1),ys(2),'B','fontsize',fs);
+    text(xs(1),ys(3),'C','fontsize',fs);
     saveas(gcf,'ESLOMethods_S0006.jpg','jpg');
 %     close(gcf);
-% end
+end
         
