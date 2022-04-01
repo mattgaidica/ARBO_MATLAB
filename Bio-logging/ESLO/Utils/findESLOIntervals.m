@@ -30,7 +30,7 @@ for iType = 1:numel(useTypes)
         dataCount = dataCount + 1;
         t1Id = closest(timeIds,onLocs(iOnOff));
         % add 0x61000000 for unix/posix time !! may change based on deployment date
-        t1 = data(timeIds(t1Id)) + 1627389952;
+        t1 = data(timeIds(t1Id));
         t2Id = closest(timeIds,offLocs(iOnOff));
 
         dataIntervals.segment(dataCount) = iOnOff;

@@ -1,5 +1,5 @@
 if do
-    fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/0006_0200/ESLORB2.TXT';
+    fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/S0006_0200/ESLORB2.TXT';
     [type,data,labels] = extractSD(fname);
     do = false;
 end
@@ -12,6 +12,7 @@ useBoutDuration = 30; % seconds
 startHour = 20;
 showHours = 8;
 esloGain = 12;
+fs = 14;
 
 iSegment = 4%unique(dataIntervals.segment)'
 xRow = find(dataIntervals.segment == iSegment & dataIntervals.type == ESLOType("XlX",labels));

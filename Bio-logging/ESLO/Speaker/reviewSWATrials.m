@@ -1,5 +1,5 @@
-doPlot = 0;
-rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0005/SWA Trials';
+doPlot = 1;
+rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials Selected';
 [file,path] = uigetfile(fullfile(rootPath,'*.BIN'),'MultiSelect','on');
 if ~iscell(file)
     file = {file}; % always cell for loop
@@ -68,10 +68,9 @@ end
 % pre-process for stim time
 periStimEEG = [];
 windowSamples = 100;
-stimDuration = 50; % ms
 for iTrial = 1:size(all_EEG,1)
-    stimIdx = closest(t,max(t)/2+((all_msToStim(iTrial)+(stimDuration/2))/1000));
-    periStimEEG(iTrial,:) = all_EEG(iTrial,stimIdx-windowSamples+1:stimIdx+windowSamples);
+    stimIdx = closest(t,max(t)/2+(all_msToStim(iTrial)/1000));
+    periStimEEG(iTrial,:) = all_EEG_filt(iTrial,stimIdx-windowSamples+1:stimIdx+windowSamples);
 end
 t_peri = linspace(0,size(periStimEEG,2)/125,size(periStimEEG,2));
 op = 0.2;
