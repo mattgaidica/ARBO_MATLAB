@@ -61,7 +61,7 @@ title('SW Detection and Stimulus');
 
 %% squirrel sleep
 cd '/Users/matt/Documents/MATLAB/ARBO/Bio-logging/ESLO';
-doSave = 1;
+doSave = 0;
 if do
     fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/S0006_0200/ESLORB2.TXT';
     [type,data,labels] = extractSD(fname,Inf,datetime(2021,8,13));
@@ -106,6 +106,7 @@ EEG = detrend(EEG(sampleRange));
 x = x(secondsOffset:secondsOffset+showHours*3600*axyFs);
 y = y(secondsOffset:secondsOffset+showHours*3600*axyFs);
 z = z(secondsOffset:secondsOffset+showHours*3600*axyFs);
+OA = OA(secondsOffset:secondsOffset+showHours*3600*axyFs);
 
 t_EEG = linspace(0,numel(EEG)/Fs/3600,numel(EEG));
 t_axy = linspace(0,numel(EEG)/Fs/3600,numel(x));
@@ -129,7 +130,7 @@ for iPlot = 1:3
     lns(1) = plot(t_EEG,EEG,'k','linewidth',lw);
     ylim([-500,800]);
     yticks([-200,0,200]);
-    xlim([min(t),max(t)]);
+    xlim([min(t_EEG),max(t_EEG)]);
     set(gca,'fontsize',fs);
     if ismember(iPlot,[1,2])
         ylabel('EEG (\muV)');
@@ -213,4 +214,61 @@ if doSave
     saveas(gcf,'ESLOMethods_S0006.jpg','jpg');
 %     close(gcf);
 end
-        
+%%
+fIdx = find(F >= 0.5 & F < 4);
+subP = P(fIdx,:); % plot(mean(subP));
+Fs_d = numel(T)/showHours;
+[Pd,Fd] = pspectrum(detrend(mean(subP)),Fs_d);
+
+if do
+    nSurr = 10000;
+    Pd_surr = [];
+    for iSurr = 1:nSurr
+        [Pd_x,~] = pspectrum(detrend(randsample(mean(subP),numel(mean(subP)),false)),Fs_d);
+        Pd_surr(iSurr,:) = Pd_x;
+    end
+    Pd_sig = 1 - sum(Pd' > Pd_surr)./nSurr;
+end
+
+pThresh = 0.001;
+fs = 14;
+close all
+ff(900,200);
+rows = 1;
+cols = 4;
+
+subplot(rows,cols,1:3);
+plot(T,mean(subP),'k','linewidth',2);
+ylabel('Power (|\mu^2|)');
+set(gca,'fontsize',fs);
+xlabel('Time (hours)');
+grid on;
+title('Overnight SW (0.5-4Hz) Power');
+pos = get(gca,'Position');
+set(gca,'Position',pos.*[1 2.3 1 0.7]);
+text(min(xlim),max(ylim),' 8PM','fontsize',fs,'verticalalignment','top');
+
+subplot(rows,cols,4);
+plot(Fd,Pd,'k','linewidth',2);
+hold on;
+pIds = find(Pd_sig < pThresh);
+plot(Fd(pIds),Pd(pIds),'r.');
+ylabel('Magnitude (A.U.)');
+yticks(ylim);
+yticklabels([]);
+xlim([0 15]);
+xlabel('Cycles (per hour)');
+set(gca,'fontsize',fs);
+title('SW Cycles');
+grid on;
+pos = get(gca,'Position');
+set(gca,'Position',pos.*[1 2.3 1 0.7]);
+[~,k] = max(Pd);
+text(Fd(k),Pd(k),strcat(' \leftarrow',sprintf('%1.2f',Fd(k))),'color','r','fontsize',fs);
+
+% add A,B
+[xs,ys] = ginput(2);
+fs = 28;
+text(xs(1),ys(1),'A','fontsize',fs);
+text(xs(2),ys(1),'B','fontsize',fs);
+saveas(gcf,'ESLOMethods_S0006_SWCycle.jpg','jpg');
