@@ -214,7 +214,7 @@ if doSave
     saveas(gcf,'ESLOMethods_S0006.jpg','jpg');
 %     close(gcf);
 end
-%%
+%% must run previous figure first
 fIdx = find(F >= 0.5 & F < 4);
 subP = P(fIdx,:); % plot(mean(subP));
 Fs_d = numel(T)/showHours;
@@ -239,7 +239,7 @@ cols = 4;
 
 subplot(rows,cols,1:3);
 plot(T,mean(subP),'k','linewidth',2);
-ylabel('Power (|\mu^2|)');
+ylabel('Power (\mu^2)');
 set(gca,'fontsize',fs);
 xlabel('Time (hours)');
 grid on;
@@ -247,6 +247,12 @@ title('Overnight SW (0.5-4Hz) Power');
 pos = get(gca,'Position');
 set(gca,'Position',pos.*[1 2.3 1 0.7]);
 text(min(xlim),max(ylim),' 8PM','fontsize',fs,'verticalalignment','top');
+
+% mark 3 oscillations
+[xs,ys] = ginput(3);
+for ii = 1:3
+    text(xs(ii),ys(ii),'\downarrow','fontsize',fs,'HorizontalAlignment','center','verticalalignment','bottom');
+end
 
 subplot(rows,cols,4);
 plot(Fd,Pd,'k','linewidth',2);
