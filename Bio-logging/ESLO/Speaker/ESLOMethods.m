@@ -18,7 +18,11 @@ t = linspace(-2,2,numel(EEG)); % just use even numbers
 fs = 14;
 EEG_filt = bandpass(EEG,[0.5 4],Fs);
 close all;
-ff(600,250);
+ff(1400,300);
+rows = 1;
+cols = 6;
+
+subplot(rows,cols,1:4);
 ln1 = plot(t,detrend(EEG),'k-','linewidth',2);
 ylabel('EEG (\muV)');
 hold on;
@@ -53,11 +57,71 @@ text(t(endStim),max(ylim),'\leftarrowSTIM','color',colors(5,:),'fontsize',fs-2,'
 text(t(midPoint),max(ylim),'DETECT\rightarrow','color','k','fontsize',fs-2,'verticalalignment','top','horizontalalignment','right');
 title('SW Detection and Stimulus');
 
-% if doSave
+pos = get(gca,'Position');
+set(gca,'Position',pos.*[1 1 0.96 1]);
+
+% SW Trial summary
+load('ESLOMethods_trialData'); % R0005
+blackTrials = find(all_Sham==0 & all_Freq > 1);
+redTrials = find(all_Sham & all_Freq > 1);
+nBins = 13;
+fs = 14;
+
+subplot(rows,cols,5);
+fHistBins = linspace(0,4,nBins);
+histogram(all_Freq(blackTrials),fHistBins,'facecolor','k');
+hold on;
+histogram(all_Freq(redTrials),fHistBins,'facecolor','r');
+% ylabel('# Trials');
+xlabel('F_c (Hz)');
+xticks(0:4);
+set(gca,'fontsize',fs);
+ylabel('Trials');
+% set(gca,'view',[90 -90]);
+ylim(ylim.*[0 1.2]);
+% yticks(ylim);
+grid on;
+title('Center Frequency (F_c)');
+legend({'Stim Trials','Sham Trials'},'location','north','fontsize',fs-2);
+legend boxoff;
+
+subplot(rows,cols,6);
+msHistBins = linspace(0,500,nBins);
+histogram(all_msToStim(blackTrials),msHistBins,'facecolor','k');
+hold on;
+histogram(all_msToStim(redTrials),msHistBins,'facecolor','r');
+set(gca,'fontsize',fs);
+ylabel('Trials');
+% yticks(ylim);
+grid on;
+xlabel('Phase Delay (ms)')
+title('Phase Delay Time');
+legend({'Stim Trials','Sham Trials'},'location','north','fontsize',fs-2);
+legend boxoff;
+
+% % % % pHistBins = 0:30:360;
+% % % % histogram(all_Phase(blackTrials),pHistBins,'facecolor','k');
+% % % % hold on;
+% % % % histogram(all_Phase(redTrials),pHistBins,'facecolor','r');
+% % % % % ylabel('# Trials');
+% % % % xticks(0:90:360);
+% % % % xlabel('Phase °');
+% % % % set(gca,'fontsize',fs);
+% % % % ylabel('Trials');
+% % % % % set(gca,'view',[90 -90]);
+% % % % yticks(ylim);
+% % % % grid on;
+
+doSave = 1;
+if doSave
 %     print(gcf,'-painters','-depsc',fullfile(exportPath,'QBTransitions.eps')); % required for vector lines
-    saveas(gcf,'ESLOMethods_R0003.jpg','jpg');
+    [xs,ys] = ginput(2);
+    fs = 28;
+    text(xs(1),ys(1),'A','fontsize',fs);
+    text(xs(2),ys(1),'B','fontsize',fs);
+    saveas(gcf,'ESLOMethods_DetectionFigure.jpg','jpg');
 %     close(gcf);
-% end
+end
 
 %% squirrel sleep
 cd '/Users/matt/Documents/MATLAB/ARBO/Bio-logging/ESLO';

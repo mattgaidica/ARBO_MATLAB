@@ -1,5 +1,5 @@
-doPlot = 1;
-rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials Selected';
+doPlot = 0;
+rootPath = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0005/SWA Trials';
 [file,path] = uigetfile(fullfile(rootPath,'*.BIN'),'MultiSelect','on');
 if ~iscell(file)
     file = {file}; % always cell for loop
@@ -64,6 +64,8 @@ for iFile = 1:numel(file)
         close(h);
     end
 end
+
+save('ESLOMethods_trialData','all_Freq','all_msToStim','all_Sham','all_Phase');
 %% stim vs. sham ephys
 % pre-process for stim time
 periStimEEG = [];
