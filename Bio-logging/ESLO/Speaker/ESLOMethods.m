@@ -3,6 +3,7 @@ cd '/Users/matt/Documents/MATLAB/ARBO/Bio-logging/ESLO/Speaker';
 Fs = 125;
 fname = '/Users/matt/Dropbox (University of Michigan)/Biologging/Database/R0003/SWA Trials Selected/00231.BIN';
 [trialVars,EEG,t] = extractSWATrial(fname,Fs);
+exportPath = '/Users/matt/Dropbox (Personal)/Science/ESLO Methods/Figures';
 %% SW detection
 Fc = trialVars.dominantFreq / 1000;
 Fp = trialVars.phaseAngle / 1000;
@@ -58,7 +59,7 @@ text(t(midPoint),max(ylim),'DETECT\rightarrow','color','k','fontsize',fs-2,'vert
 title('SW Detection and Stimulus');
 
 pos = get(gca,'Position');
-set(gca,'Position',pos.*[1 1 0.96 1]);
+set(gca,'Position',pos.*[1 1.5 0.96 .903]);
 
 % SW Trial summary
 load('ESLOMethods_trialData'); % R0005
@@ -112,9 +113,10 @@ legend boxoff;
 % % % % yticks(ylim);
 % % % % grid on;
 
-doSave = 1;
+doSave = 0;
+% FOR PAPER: doSave = 0, then copy/paste:
+%     print(gcf,'-painters','-depsc',fullfile(exportPath,'ESLOMethods_DetectionFigure_raw.eps')); % required for vector lines
 if doSave
-%     print(gcf,'-painters','-depsc',fullfile(exportPath,'QBTransitions.eps')); % required for vector lines
     [xs,ys] = ginput(2);
     fs = 28;
     text(xs(1),ys(1),'A','fontsize',fs);
@@ -268,8 +270,9 @@ text(min(xlim),max(ylim),' 8PM','fontsize',fs,'verticalalignment','top','color',
 text(t_sleep,max(ylim),'\downarrowSleep','fontsize',fs,'verticalalignment','top','color','w');
 text(t_wake,max(ylim),'\downarrowWake','fontsize',fs,'verticalalignment','top','color','w');
 
+doSave = 0;
+%     print(gcf,'-painters','-depsc',fullfile(exportPath,'ESLOMethods_S0006_raw.eps')); % required for vector lines
 if doSave
-%     print(gcf,'-painters','-depsc',fullfile(exportPath,'QBTransitions.eps')); % required for vector lines
     [xs,ys] = ginput(3);
     fs = 28;
     text(xs(1),ys(1),'A','fontsize',fs);
@@ -285,13 +288,14 @@ Fs_d = numel(T)/showHours;
 [Pd,Fd] = pspectrum(detrend(mean(subP)),Fs_d);
 
 if do
-    nSurr = 10000;
+    nSurr = 1000;
     Pd_surr = [];
     for iSurr = 1:nSurr
         [Pd_x,~] = pspectrum(detrend(randsample(mean(subP),numel(mean(subP)),false)),Fs_d);
         Pd_surr(iSurr,:) = Pd_x;
     end
     Pd_sig = 1 - sum(Pd' > Pd_surr)./nSurr;
+    do = 0;
 end
 
 pThresh = 0.001;
@@ -313,7 +317,9 @@ set(gca,'Position',pos.*[1 2.3 1 0.7]);
 text(min(xlim),max(ylim),' 8PM','fontsize',fs,'verticalalignment','top');
 
 % mark 3 oscillations
-[xs,ys] = ginput(3);
+% % [xs,ys] = ginput(3);
+xs = [3.2773,3.5430,3.8555];
+ys = [244.0789,249.3421,238.8158];
 for ii = 1:3
     text(xs(ii),ys(ii),'\downarrow','fontsize',fs,'HorizontalAlignment','center','verticalalignment','bottom');
 end
@@ -336,9 +342,12 @@ set(gca,'Position',pos.*[1 2.3 1 0.7]);
 [~,k] = max(Pd);
 text(Fd(k),Pd(k),strcat(' \leftarrow',sprintf('%1.2f',Fd(k))),'color','r','fontsize',fs);
 
-% add A,B
-[xs,ys] = ginput(2);
-fs = 28;
-text(xs(1),ys(1),'A','fontsize',fs);
-text(xs(2),ys(1),'B','fontsize',fs);
-saveas(gcf,'ESLOMethods_S0006_SWCycle.jpg','jpg');
+doSave = 0;
+%     print(gcf,'-painters','-depsc',fullfile(exportPath,'ESLOMethods_S0006_SWCycle_raw.eps')); % required for vector lines
+if doSave
+    [xs,ys] = ginput(2);
+    fs = 28;
+    text(xs(1),ys(1),'A','fontsize',fs);
+    text(xs(2),ys(1),'B','fontsize',fs);
+    saveas(gcf,'ESLOMethods_S0006_SWCycle.jpg','jpg');
+end
