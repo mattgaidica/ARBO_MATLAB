@@ -73,7 +73,7 @@ title(sprintf('Cardiac Filter, ~%1.0f BPM',60/median(diff(tEEG(locs)))));
 ylim([-10 15]);
 set(gca,'fontsize',14);
 
-saveas(gcf,'R0010_respCardFilters.jpg');
+% % saveas(gcf,'R0010_respCardFilters.jpg');
 %% HR only
 EEG = ADSgain(double(dataIntervals.data{2}),esloGain);
 
