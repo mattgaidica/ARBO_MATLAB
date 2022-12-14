@@ -65,7 +65,13 @@ for iEEG = 1:4
         xData = data(XlX_ids(XlX_ids > dataRange(1) & XlX_ids < dataRange(end)));
         yData = data(XlY_ids(XlY_ids > dataRange(1) & XlY_ids < dataRange(end)));
         zData = data(XlZ_ids(XlZ_ids > dataRange(1) & XlZ_ids < dataRange(end)));
-        dataIntervals.xl(dataCount) = {[xData',yData',zData']};
+        % in case dimension mismatch
+        nEntries = min([numel(xData),numel(yData),numel(zData)]); % or max?
+        axyArr = NaN(nEntries,3);
+        axyArr(1:nEntries,1) = xData(1:nEntries);
+        axyArr(1:nEntries,2) = yData(1:nEntries);
+        axyArr(1:nEntries,3) = zData(1:nEntries);
+        dataIntervals.xl(dataCount) = {axyArr};
     end
     warning ('on','all');
 end
