@@ -5,35 +5,49 @@ if do
 end
 
 SDreport(type,labels);
-dataIntervals = findESLOIntervals_v2(data,type,labels);
-
-%%
-esloGain = 12;
-EEG = ADSgain(double(dataIntervals.data{1}),esloGain); % convert to uV
-
-%%
-Fs = 125;
-
 axyFs = 1;
 
-close all
+x = data(type==7);
+y = data(type==8);
+z = data(type==9);
+OA = axyOA(x,y,z,axyFs);
 
-FLIMS = [1 15];
-allP = [];
-load('SOSG_LP4Hz.mat');
-for ii = 1:68
-    EEG = ADSgain(double(dataIntervals.data{ii}),esloGain); % convert to uV
-    [EEG_clean,locs] = cleanEEG(EEG,250); % clean at 300uV
-    if numel(locs) > 200
-        continue;
-    end
-%     EEG_SWA = filtfilt(SOS,G,EEG_clean);
-    [P,F,T] = pspectrum(EEG_clean,Fs,'spectrogram','FrequencyLimits',FLIMS);
-    allP = [allP P];
+allTempLocs = find(type==13);
+allTemp = data(type==13);
+allxLocs = find(type==7);
+temp = [];
+for ii = 1:numel(allxLocs)
+    nearestId = find(allTempLocs < allxLocs(ii),1,'last');
+    fprintf("xid: %i, nearesttemp: %i\n",ii,nearestId);
+    shiftdata = bitshift(data(allTempLocs(nearestId)),8);
+    temp(ii) = double(shiftdata)/1000000;
 end
 
-ff(1400,400);
-imagesc(1:size(allP,2),F,allP);
-set(gca,'ydir','normal');
-colormap(magma);
-caxis(caxis/3)
+t = linspace(0,numel(OA)/60,numel(OA));
+close all
+ff(1200,400);
+plot(t,OA,'k-','linewidth',2);
+ylabel('ODBA');
+yyaxis right;
+plot(t,temp,'r-','linewidth',0.5);
+ylabel('Temp (C)');
+set(gca,'ycolor','r');
+hold on;
+plot(t,smoothdata(temp,'gaussian',60),'r--','linewidth',1);
+xlabel('Time (s)');
+xlim([min(t) max(t)]);
+grid on;
+set(gca,'fontsize',14);
+%%
+close all
+shiftdata = bitshift(data(type==13),8);
+temp = double(shiftdata)/1000000;
+ff(1200,400);
+plot(temp,'r-','linewidth',0.5);
+ylabel('Temp (C)');
+set(gca,'ycolor','r');
+hold on;
+plot(smoothdata(temp,'gaussian',60),'r--','linewidth',1);
+xlabel('Time (s)');
+grid on;
+set(gca,'fontsize',14);

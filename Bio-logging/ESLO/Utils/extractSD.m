@@ -44,9 +44,12 @@ for ii = 1:4:numel(A)
             thisData = bitor(thisData,0xFF000000);
         end
     end
+    if ismember(thisType,[6,13]) % battery,temp
+        thisData = bitshift(thisData,8);
+    end
     thisData = typecast(thisData,'int32');
     
-    if thisType == 0x0F
+    if thisType == 0x0F % version
         if ii == 1
             esloVersion = thisData;
         else
