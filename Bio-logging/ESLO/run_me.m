@@ -19,7 +19,7 @@ temp = [];
 for ii = 1:numel(allxLocs)
     nearestId = find(allTempLocs < allxLocs(ii),1,'last');
     fprintf("xid: %i, nearesttemp: %i\n",ii,nearestId);
-    shiftdata = bitshift(data(allTempLocs(nearestId)),8);
+    shiftdata = data(allTempLocs(nearestId));
     temp(ii) = double(shiftdata)/1000000;
 end
 
@@ -34,7 +34,7 @@ ylabel('Temp (C)');
 set(gca,'ycolor','r');
 hold on;
 plot(t,smoothdata(temp,'gaussian',60),'r--','linewidth',1);
-xlabel('Time (s)');
+xlabel('Time (min)');
 xlim([min(t) max(t)]);
 grid on;
 set(gca,'fontsize',14);
