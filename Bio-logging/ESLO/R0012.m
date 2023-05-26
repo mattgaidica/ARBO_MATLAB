@@ -1,5 +1,6 @@
 if do
     fname = '/Users/mattgaidica/Dropbox (University of Michigan)/Biologging/Database/R0012/ESLORB2.TXT';
+    fname = '/Volumes/LEXAR633X/ESLORB2.TXT';
     [type,data,labels] = extractSD(fname);
     SDreport(type,labels);
     dataIntervals = findESLOIntervals_v2(data,type,labels);
